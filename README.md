@@ -1,12 +1,12 @@
 # Your first extension for GitHub Copilot
 
-<!-- ![](../../actions/workflows/0-start-course.yml/badge.svg?branch=main) -->
+<!-- ![](https://github.com/UMBERTODECICCO75/TRADUCHAT/actions/workflows/0-start-course.yml/badge.svg?branch=main) -->
 
-![](../../actions/workflows/1-preparing.yml/badge.svg)
-![](../../actions/workflows/2-running-our-extension.yml/badge.svg)
-![](../../actions/workflows/3-connecting-to-github.yml/badge.svg)
-![](../../actions/workflows/4-customizing-our-extension.yml/badge.svg)
-![](../../actions/workflows/5-merge-our-changes.yml/badge.svg)
+![](https://github.com/UMBERTODECICCO75/TRADUCHAT/actions/workflows/1-preparing.yml/badge.svg)
+![](https://github.com/UMBERTODECICCO75/TRADUCHAT/actions/workflows/2-running-our-extension.yml/badge.svg)
+![](https://github.com/UMBERTODECICCO75/TRADUCHAT/actions/workflows/3-connecting-to-github.yml/badge.svg)
+![](https://github.com/UMBERTODECICCO75/TRADUCHAT/actions/workflows/4-customizing-our-extension.yml/badge.svg)
+![](https://github.com/UMBERTODECICCO75/TRADUCHAT/actions/workflows/5-merge-our-changes.yml/badge.svg)
 
 _Customize GitHub Copilot to your personal or company needs in less than an hour._
 
@@ -34,14 +34,14 @@ In this exercise, you will:
 
 1. Right-click **Copy Exercise** and open the link in a new tab.
 
-   <a id="copy-exercise" href="https://github.com/new?template_owner=skills&template_name=your-first-extension-for-github-copilot&owner=%40me&name=skills-your-first-extension-for-github-copilot&description=Exercise:+My+Copilot+Extension&visibility=public">
-      <img src="https://img.shields.io/badge/📠_Copy_Exercise-008000" height="25pt"/>
+   <a id="copy-exercise">
+      <img src="https://img.shields.io/badge/📠_Copy_Exercise-AAA" height="25pt"/>
    </a>
 
 2. In the new tab, most of the fields will automatically fill in for you.
 
    - For owner, choose your personal account or an organization to host the repository.
-   - We recommend creating a public repository, as private repositories will use [Actions minutes](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions).
+   - We recommend creating a public repository, as private repositories will use [Actions minutes](https://docs.github.chttps://github.com/UMBERTODECICCO75/TRADUCHAT/billing/managing-billing-for-github-actions/about-billing-for-github-actions).
    - Scroll down and click the **Create repository** button at the bottom of the form.
 
 3. After your new repository is created, wait about 20 seconds for the course to be prepared.
@@ -51,8 +51,8 @@ In this exercise, you will:
 
 4. Click **Start Exercise**. Follow the step-by-step instructions and feedback will be provided as you progress.
 
-   <a id="start-exercise">
-      <img src="https://img.shields.io/badge/🚀_Start_Exercise-AAA" height="25pt"/>
+   <a id="start-exercise" href="https://github.com/UMBERTODECICCO75/TRADUCHAT/issues/1">
+      <img src="https://img.shields.io/badge/🚀_Start_Exercise-008000" height="25pt"/>
    </a>
 
 > [!IMPORTANT]
