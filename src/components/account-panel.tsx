@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { TRANSLATION_LANGUAGES } from "@/lib/languages";
 import { ArrowLeft, Archive, Camera, Copy, EyeOff, MessageCircle, Save, Settings, Share2, UserPlus, Users, Volume2, X } from "lucide-react";
 import { CreateGroup } from "@/components/create-group";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,8 @@ import type { AccountMenu } from "@/lib/use-account-menu";
 import { photoError } from "@/lib/profile-rules";
 import { compressPhoto } from "@/lib/compress-photo";
 import logo from "@/assets/traduchat-logo.png.asset.json";
-const languages = ["Italiano", "Inglese", "Spagnolo", "Francese", "Tedesco", "Portoghese", "Cinese", "Giapponese", "Arabo", "Russo"];
+// Italiano first: the default language of the app.
+const languages: string[] = ["Italiano", ...TRANSLATION_LANGUAGES.filter((l) => l !== "Italiano")];
 export function AccountPanel({ account: a, back, logout, openChat }: { account: AccountMenu; back: () => void; logout: () => void; openChat: (name: string) => void }) {
   const [view, setView] = useState("menu");
   const [error, setError] = useState("");

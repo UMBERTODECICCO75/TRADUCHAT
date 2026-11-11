@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
+import { TRANSLATION_LANGUAGES } from "@/lib/languages";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Captions, Mic, MicOff, Phone, Square, Video, VideoOff, Volume2, VolumeX } from "lucide-react";
 import { translateVoice } from "@/lib/voice.functions";
 import { recordWav, playWav } from "@/lib/record-wav";
 import { Button } from "@/components/ui/button";
 
-const LANGS = ["Inglese", "Italiano", "Spagnolo", "Francese", "Tedesco", "Portoghese", "Cinese", "Giapponese", "Arabo", "Russo"];
+const LANGS: string[] = [...TRANSLATION_LANGUAGES];
 
 export function CallScreen({ name, mode, myLang, end }: { name: string; mode: "audio" | "video"; myLang: string; end: () => void }) {
   const [video, setVideo] = useState(mode === "video");

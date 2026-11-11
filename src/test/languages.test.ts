@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { TRANSLATION_LANGUAGES, validateTargetLanguage } from "@/lib/languages";
+import { TRANSLATION_LANGUAGES, languageCode, validateTargetLanguage } from "@/lib/languages";
 
 describe("translation languages", () => {
-  it("offers the ten app languages", () => {
-    expect(TRANSLATION_LANGUAGES).toHaveLength(10);
+  it("offers fifty languages, each with a unique code", () => {
+    expect(TRANSLATION_LANGUAGES).toHaveLength(50);
+    expect(new Set(TRANSLATION_LANGUAGES.map(languageCode)).size).toBe(50);
   });
   it("accepts each offered language", () => {
     for (const lang of TRANSLATION_LANGUAGES) {

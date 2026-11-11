@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { TRANSLATION_LANGUAGES } from "@/lib/languages";
 import { useServerFn } from "@tanstack/react-start";
 import { Camera, ImagePlus, Languages, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,8 @@ import { chatPhotoError } from "@/lib/chat-photos";
 import type { CameraTranslation } from "@/lib/camera-rules";
 import { supabase } from "@/integrations/supabase/client";
 
-const languages = ["Italiano", "Inglese", "Spagnolo", "Francese", "Tedesco", "Portoghese", "Cinese", "Giapponese", "Arabo", "Russo"];
+// Italiano first: the default language of the app.
+const languages: string[] = ["Italiano", ...TRANSLATION_LANGUAGES.filter((l) => l !== "Italiano")];
 
 export function CameraTranslator({ people, recipientId, language, onClose, onSent }: {
   people: { id: string; name: string }[]; recipientId?: string | undefined; language?: string | undefined;

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { translateText } from "@/lib/translate.functions";
 import { translateVoice } from "@/lib/voice.functions";
-import { TRANSLATION_LANGUAGES } from "@/lib/languages";
+import { TRANSLATION_LANGUAGES, languageCode } from "@/lib/languages";
 import { recordWav } from "@/lib/record-wav";
 import { PeerCallsProvider, usePeerCalls } from "@/components/peer-calls";
 import { VideoRoomsPanel } from "@/components/video-rooms-panel";
@@ -17,6 +17,8 @@ import { TranslationCache, needsTranslation } from "@/lib/translation-cache";
 
 // Translations already obtained in this browser session: repeats are instant, no server round-trip.
 const clientTranslations = new TranslationCache(300);
+// Translations already on their way (e.g. started while typing): sending reuses them.
+const clientPending = new Map<string, Promise<{ ok: true; translation: string } | { ok: false; error: string }>>();
 import { supabase } from "@/integrations/supabase/client";
 import { AccountPanel } from "@/components/account-panel";
 import { useAccountMenu, type AccountMenu } from "@/lib/use-account-menu";
@@ -53,10 +55,6 @@ type Tab = "chiamate" | "chat" | "contatti";
 
 
 const LANGS: string[] = [...TRANSLATION_LANGUAGES];
-const LANG_CODES: Record<string, string> = {
-  Inglese: "EN", Italiano: "IT", Spagnolo: "ES", Francese: "FR", Tedesco: "DE",
-  Portoghese: "PT", Cinese: "ZH", Giapponese: "JA", Arabo: "AR", Russo: "RU",
-};
 
 
 function App() {
@@ -425,10 +423,26 @@ export function Chat({ back, name = "Milly Rosa" }: { back: () => void; name?: s
     if (!needsTranslation(text)) return { ok: true as const, translation: text };
     const hit = clientTranslations.get(text, target);
     if (hit !== undefined) return { ok: true as const, translation: hit };
-    const r = await doTranslate({ data: { text, target } });
-    if (r.ok) clientTranslations.set(text, target, r.translation);
-    return r;
+    const key = TranslationCache.key(text, target);
+    const pending = clientPending.get(key);
+    if (pending) return pending;
+    const job = doTranslate({ data: { text, target } })
+      .then((r) => { if (r.ok) clientTranslations.set(text, target, r.translation); return r; })
+      .finally(() => clientPending.delete(key));
+    clientPending.set(key, job);
+    return job;
   };
+  const fetchRef = useRef(fetchTranslation);
+  fetchRef.current = fetchTranslation;
+
+  // Translate the draft while the user is still typing: when they press send,
+  // the translation is usually already there and the message goes out at once.
+  useEffect(() => {
+    const draft = text.trim();
+    if (!translate || draft.length < 2 || draft.length > 2000) return;
+    const t = window.setTimeout(() => { void fetchRef.current(draft, lang).catch(() => {}); }, 700);
+    return () => window.clearTimeout(t);
+  }, [text, lang, translate]);
 
   const translateIn = async (i: number) => {
     const m = msgs[i];
@@ -450,22 +464,33 @@ export function Chat({ back, name = "Milly Rosa" }: { back: () => void; name?: s
 
   const send = async () => {
     const original = text.trim();
-    if (!original || busy) return;
-    setBusy(true); setErr("");
+    if (!original) return;
+    setErr("");
+    // Show the message right away and free the input; the translation finishes in the background.
+    const pending: Msg = { me: true, text: original, trBusy: true, time: new Date().toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) };
+    setMsgs((x) => [...x, pending]);
+    setText("");
+    const fail = (message: string) => {
+      setMsgs((x) => x.filter((m) => m !== pending));
+      setText((current) => current || original);
+      setErr(message);
+    };
     try {
+      let m: Msg;
       if (!translate) {
-        const m = await sendChatMessage(original, name, recipientId ?? null);
-        setMsgs((x) => [...x, m]);
-        setText("");
-        return;
+        m = await sendChatMessage(original, name, recipientId ?? null);
+      } else {
+        const r = await fetchTranslation(original, lang);
+        if (!r.ok) { fail(r.error); return; }
+        m = await sendChatMessage(r.translation, name, recipientId ?? null, original, lang);
       }
-      const r = await fetchTranslation(original, lang);
-      if (!r.ok) { setErr(r.error); return; }
-      const m = await sendChatMessage(r.translation, name, recipientId ?? null, original, lang);
-      setMsgs((x) => [...x, m]);
-      setText("");
-    } catch (e) { setErr(e instanceof Error ? e.message : "Invio non riuscito"); }
-    finally { setBusy(false); }
+      // polling may already have brought the stored message: never show it twice
+      setMsgs((x) => {
+        const rest = x.filter((y) => y !== pending);
+        if (rest.some((y) => y.msgId === m.msgId)) return rest;
+        return rest.length === x.length ? [...x, m] : x.map((y) => (y === pending ? m : y));
+      });
+    } catch (e) { fail(e instanceof Error ? e.message : "Invio non riuscito"); }
   };
 
   const toggleRec = async () => {
@@ -508,7 +533,7 @@ export function Chat({ back, name = "Milly Rosa" }: { back: () => void; name?: s
         <div className="presentation-chat-language relative" onClick={(e) => e.stopPropagation()}>
           <button onClick={() => setLangOpen((o) => !o)} aria-label="La mia lingua"
             className="flex items-center gap-1 rounded-full bg-secondary px-2 py-1 text-[11px] font-black text-secondary-foreground">
-            <Languages size={13} /> {LANG_CODES[myLang] ?? "??"}
+            <Languages size={13} /> {languageCode(myLang)}
           </button>
           {langOpen && (
             <div className="absolute right-0 top-9 z-20 max-h-64 w-44 overflow-y-auto rounded-2xl bg-card p-1 shadow-xl">
@@ -535,6 +560,7 @@ export function Chat({ back, name = "Milly Rosa" }: { back: () => void; name?: s
               className={`presentation-bubble relative max-w-[80%] px-4 py-3 text-sm ${m.me ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md bg-bubble text-bubble-foreground"}`}>
               {m.image && <img src={m.image} alt="Foto inviata" className="mb-1 max-h-64 w-full rounded-2xl object-cover" />}
               {m.text && <p>{m.text}</p>}
+              {m.me && m.trBusy && <p className="mt-1 text-[10px] font-semibold opacity-70">Traduco e invio…</p>}
               {m.audioUrl && <audio controls preload="none" src={m.audioUrl} aria-label="Vocale tradotto" className="mt-2 h-10 w-full min-w-0" onClick={e => e.stopPropagation()} />}
               {showTr && m.tr && (
                 <p className="mt-1 border-t border-foreground/10 pt-1 text-xs italic opacity-80">
