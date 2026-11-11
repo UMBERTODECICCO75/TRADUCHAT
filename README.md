@@ -1,3 +1,12 @@
+<p align="center">
+  <img src=".github/traduchat-logo.png" alt="TraduChat" width="160" />
+</p>
+
+<h1 align="center">TraduChat</h1>
+<p align="center">Chat con traduzione istantanea in 50 lingue · versione 1.3</p>
+
+---
+
 # Welcome to your Lovable project
 
 This project was built with [Lovable](https://lovable.dev).
