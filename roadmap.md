@@ -1,0 +1,32 @@
+# Funzioni menu Traduchat
+- [x] Avvisi browser con scheda in background e Bip On; permesso dal menu, Off interrompe suono e avvisi, contenuto privato omesso. Verificato con account autenticato e ricezione/visibilità simulate: nessun avviso in primo piano, un avviso in background, nessun duplicato, Off silenzioso; 77 test superati. Non pubblicato. Non include ricezione ad app chiusa o sospesa senza configurazione web push Firebase.
+- [x] Aggiunti Incognito e Bip On/Off nel menu; preferenza bip per account sul dispositivo, nuovi messaggi ricevuti di tutte le chat e formati senza duplicati o storico. Verificati menu autenticato su telefono/desktop, persistenza e bip On/Off con ricezione simulata; 72 test superati. Non pubblicato; suono ad app chiusa non previsto.
+- [x] Riattivato Crea gruppo con contatti registrati: creazione verificata e gruppo di prova rimosso; pulsante Notifiche e riquadro configurazione mancanti rimossi.
+- [x] Vocali tradotti salvati nelle chat reali: verificati invio, audio riproducibile e riapertura con account autenticato; 67 test superati.
+- [x] Verifica registrazione e chat con notifica: registrazione ok (5 utenti, 4 confermati, controlli modulo verificati); messaggi di testo ora salvati nella tabella chat_messages con notifica push al destinatario, verificati invio, traduzione e salvataggio con account reale. Le notifiche push arrivano solo dopo aver aggiunto le chiavi web push di Firebase (4 chiavi mancanti) e attivato le notifiche dal profilo su ciascun dispositivo.
+- [x] Rendere la scritta TraduChat interamente bianca, senza modificare le funzioni.
+- [ ] Accettare e pubblicare lo stile aggiornato: attende la conferma dell'utente in un turno separato dopo la modifica della bozza.
+- [x] Bozza visiva separata: stile della presentazione applicato a login, home, chat e chiamate. Verificati login, contatti e chat con account autenticato su telefono e desktop; colori richiesti, foto e iniziali preservati, nessun errore o scorrimento orizzontale. Aspetto delle chiamate verificato in preparazione con fotocamera simulata e invio al contatto bloccato; nessuna nuova prova di ricezione audio/video. Nessun dato, account, permesso o servizio modificato; bozza non accettata né pubblicata.
+- [x] Correggere profilo vuoto ed errore di sessione dopo uscita e nuovo accesso; verificati profilo caricato senza ricaricare, uscita verso login senza avvisi, pulizia dati e 8 test superati.
+- [x] Fotocamera: traduzione foto nella propria lingua, originale visibile e invio al contatto; verificata traduzione reale di un menu, invio a mariorossi, ricezione con il secondo account e riapertura. Pannello verificato su telefono e desktop; 18 test superati, compilazione corretta. Scatto da fotocamera fisica non verificabile nell’ambiente di prova.
+- [x] Aggiornare l'informativa privacy con Twilio, cookie pubblicitari soggetti a consenso e sito www.traduchatchat.com; pagina verificata nel browser senza errori. Nessun cookie pubblicitario attivato.
+- [x] Aggiungere Torna indietro nelle chiamate e stanze private, disponibile anche durante connessione o errore, usando la chiusura esistente per liberare audio/video.
+- [x] Collegato Twilio e salvate credenziali Video protette; implementate stanze private, inviti e token temporanei riservati ai membri. Verificata creazione stanza e invito mariorossi nell'app.
+- [ ] Completare Twilio audio/video e verifica con almeno 4 partecipanti: nuova prova autenticata del 5 novembre 2026 nella stanza "Verifica Twilio TraduChat" ancora bloccata da "Legacy room type no longer supported", con 0 partecipanti collegati e nessun audio/video ricevuto. Verificare Group e Client-side Room Creation nell'account associato alle chiavi Video; solo dopo ripetere la prova con quattro account distinti autorizzati. I pulsanti di chiamata diretta restano sul sistema precedente, da migrare dopo l'attivazione Video. Pubblicare dopo la configurazione per distribuire le credenziali.
+- [x] Implementare chiamate audio/video tra utenti registrati: segnalazione privata, risposta/rifiuto, microfono/video, storico e ascolto globale. Verificati contatti e autorizzazioni con account autenticato; 38 test superati.
+- [x] Verificare con secondo partecipante autorizzato mariorossi: nuova prova del 5 novembre 2026 con due browser e account distinti conferma arrivo e risposta sia audio sia video, microfono/altoparlante su entrambi, video attivato/disattivato e chiusura da remoto; nessun errore JavaScript. Ricezione non riuscita: entrambi restano in "Connessione…", zero byte inviati, nessun flusso RTP ricevuto e nessun candidato di rete; anteprime locali 640×480 funzionanti.
+- [ ] Completare verifica trasmissione audio/video su rete utilizzabile: ambiente di prova senza candidati di rete; servizio TURN non configurato. Serve una prova su due dispositivi reali o un relay configurato.
+- [x] Sostituire gruppo con contatti; collegati i comandi audio/video al sistema di chiamate tra utenti registrati.
+- [x] Preparare il modulo username, email e password; verificati separazione dei dati, conferma password e modulo su telefono. Non eseguita una nuova registrazione con conferma email.
+- [x] Revisionare la registrazione: username unico nel database, controlli su email e password con messaggi in italiano, verificati nell'app.
+- [x] Pagina dedicata /registrati con elenco dei requisiti, collegata dal pulsante "Registrati" del login; verificata nell'app.
+- [x] Correggere le vulnerabilità indicate per Tailwind, TanStack e Zod; aggiornare Vite e verificare i 29 test e la compilazione automatica.
+- [ ] Vulnerabilità di sviluppo residue: drizzle-kit richiede indirettamente esbuild 0.18.x e typescript-eslint richiede minimatch 10.x; le ultime versioni stabili non consentono versioni corrette senza forzature. In attesa degli aggiornamenti dei fornitori.
+- [x] Comprimere automaticamente le foto di profilo e chat e verificare il caricamento.
+- [x] Aumentare a 25 MB le foto del profilo e delle chat.
+- [x] Verificare Lovable Database: già attivo e funzionante.
+- [ ] Profilo: nome, città, lingua, stato, foto e incognito salvati per utente.
+- [ ] Notifiche: elenco reale, lettura e preferenza avvisi.
+- [ ] Archivio: archiviare/ripristinare le conversazioni mostrate.
+- [ ] Inviti: condividere o copiare il link dell'app.
+- [ ] Collegare menu e verificare con account autenticato.
