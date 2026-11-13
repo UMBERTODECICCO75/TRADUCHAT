@@ -16,6 +16,14 @@ function toE164(raw: string): string | null {
   return /^\d{8,15}$/.test(normalized) ? `+${normalized}` : null;
 }
 
+/** Languages Twilio Verify can use for the SMS / voice message; anything else falls back to English. */
+const VERIFY_LOCALES: Record<string, string> = {
+  it: "it", en: "en", es: "es", fr: "fr", de: "de", ru: "ru", pt: "pt", ar: "ar", zh: "zh", "zh-TW": "zh-HK",
+};
+function verifyLocale(lang?: string) {
+  return (lang && (VERIFY_LOCALES[lang] ?? VERIFY_LOCALES[lang.split("-")[0] ?? ""])) || "en";
+}
+
 /** Synthetic login address derived from the phone number. */
 function phoneEmail(e164: string) {
   return `${e164.replace("+", "")}@telefono.traduchat.app`;
@@ -46,8 +54,10 @@ async function twilio(path: string, form: Record<string, string>) {
 
 /** Sends a 6-digit code by SMS or automated voice call to the given phone number. */
 export const sendPhoneCode = createServerFn({ method: "POST" })
-  .inputValidator((input: { phone: string; channel: "sms" | "call" }) =>
-    z.object({ phone: z.string().min(5).max(30), channel: z.enum(["sms", "call"]) }).parse(input),
+  .inputValidator((input: { phone: string; channel: "sms" | "call"; locale?: string }) =>
+    z
+      .object({ phone: z.string().min(5).max(30), channel: z.enum(["sms", "call"]), locale: z.string().max(10).optional() })
+      .parse(input),
   )
   .handler(async ({ data }) => {
     const to = toE164(data.phone);
@@ -65,7 +75,7 @@ export const sendPhoneCode = createServerFn({ method: "POST" })
     const sent = await twilio(`/verify/v2/Services/${VERIFY_SERVICE_SID}/Verifications`, {
       To: to,
       Channel: data.channel,
-      Locale: "it",
+      Locale: verifyLocale(data.locale),
     });
     if (sent.status !== "pending") throw new Error("Non riesco a inviare il codice. Riprova.");
     return { phone: to };

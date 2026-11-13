@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { sendPhoneCode, verifyPhoneCode } from "@/lib/phone-auth.functions";
+import { PhoneInput } from "@/components/PhoneInput";
 import { requestEmailSignupCode, verifyEmailSignupCode } from "@/lib/email-signup.functions";
 import { useEffect, useState } from "react";
 import { Languages, Loader2, PhoneCall, MessageSquare } from "lucide-react";
@@ -222,7 +223,7 @@ function AuthPage() {
     }
     setBusy(true);
     try {
-      const result = await sendSmsFn({ data: { phone: phone.trim(), channel } });
+      const result = await sendSmsFn({ data: { phone: phone.trim(), channel, locale: lang } });
       setPhone(result.phone);
       setPhoneChannel(channel);
       setCodeSent(true);
@@ -475,18 +476,7 @@ function AuthPage() {
               {!codeSent ? (
                 <div className="space-y-1.5">
                   <Label htmlFor="phone">{t.phoneLabel}</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    dir="ltr"
-                    autoComplete="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") void sendPhone("sms");
-                    }}
-                    placeholder="+39 333 1234567"
-                  />
+                  <PhoneInput id="phone" lang={lang} value={phone} onChange={setPhone} onEnter={() => void sendPhone("sms")} />
                   <p className="text-xs text-muted-foreground">
                      {t.phoneHint}
                   </p>
@@ -551,15 +541,7 @@ function AuthPage() {
               {!codeSent && (
                 <div className="space-y-1.5">
                   <Label htmlFor="signup-phone">{t.phoneLabel}</Label>
-                  <Input
-                    id="signup-phone"
-                    type="tel"
-                    dir="ltr"
-                    autoComplete="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+39 333 1234567"
-                  />
+                  <PhoneInput id="signup-phone" lang={lang} value={phone} onChange={setPhone} />
                 </div>
               )}
               {!codeSent ? (
@@ -715,7 +697,7 @@ function AuthPage() {
                   {!codeSent ? (
                     <div className="space-y-1.5">
                       <Label htmlFor="reset-phone">{t.phoneLabel}</Label>
-                      <Input id="reset-phone" type="tel" dir="ltr" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+39 333 1234567" />
+                      <PhoneInput id="reset-phone" lang={lang} value={phone} onChange={setPhone} />
                       <p className="text-xs text-muted-foreground">{t.phoneHint}</p>
                     </div>
                   ) : (
