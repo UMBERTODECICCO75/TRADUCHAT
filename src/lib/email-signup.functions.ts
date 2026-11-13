@@ -1,3 +1,4 @@
+import { toE164 } from "./phone";
 import { createServerFn } from "@tanstack/react-start";
 import { createHash, randomInt } from "node:crypto";
 import { z } from "zod";
@@ -26,8 +27,9 @@ export const requestEmailSignupCode = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const email = data.email.trim().toLowerCase();
-    if (data.phone.replace(/\D/g, "").length < 6) {
-      throw new Error("Inserisci il tuo numero di telefono.");
+    const phone = toE164(data.phone);
+    if (!phone) {
+      throw new Error("Inserisci un numero di telefono valido con il prefisso internazionale.");
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -86,8 +88,9 @@ export const verifyEmailSignupCode = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const email = data.email.trim().toLowerCase();
     const code = data.code.trim();
-    if (data.phone.replace(/\D/g, "").length < 6) {
-      throw new Error("Inserisci il tuo numero di telefono.");
+    const phone = toE164(data.phone);
+    if (!phone) {
+      throw new Error("Inserisci un numero di telefono valido con il prefisso internazionale.");
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -99,7 +102,7 @@ export const verifyEmailSignupCode = createServerFn({ method: "POST" })
       email,
       password: data.password,
       email_confirm: true,
-      user_metadata: { phone: data.phone.trim() },
+      user_metadata: { phone },
     });
     if (created.error || !created.data.user) {
       const message = created.error?.message ?? "";
@@ -115,7 +118,7 @@ export const verifyEmailSignupCode = createServerFn({ method: "POST" })
       {
         id: created.data.user.id,
         email,
-        phone: data.phone.replace(/[^\d+]/g, ""),
+        phone,
       },
       { onConflict: "id" },
     );

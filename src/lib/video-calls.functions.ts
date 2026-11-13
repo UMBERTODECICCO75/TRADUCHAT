@@ -64,13 +64,9 @@ export const getVideoIceServers = createServerFn({ method: "POST" })
       const { chargeCallMinutes } = await import("./usage-credits.server");
       await chargeCallMinutes(data.callId, [call.caller_id, call.callee_id], started?.created_at ?? new Date().toISOString());
     }
-    const key = process.env["LOVABLE_API_KEY"];
-    const connectionKey = process.env["TWILIO_API_KEY"];
-    if (!key || !connectionKey) throw new Error("Collegamento video non configurato.");
-    const response = await fetch("https://connector-gateway.lovable.dev/twilio/Tokens.json", {
-      method: "POST", headers: { Authorization: `Bearer ${key}`, "X-Connection-Api-Key": connectionKey, "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ Ttl: "3600" }), signal: AbortSignal.timeout(12000),
-    });
+    const { twilioConfigured, twilioPost } = await import("./twilio.server");
+    if (!twilioConfigured()) throw new Error("Collegamento video non configurato.");
+    const response = await twilioPost("/Tokens.json", { Ttl: "3600" });
     if (!response.ok) {
       // Do not log successful bodies: they contain temporary TURN credentials.
       const body = await response.text();

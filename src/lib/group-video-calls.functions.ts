@@ -51,12 +51,9 @@ export const getGroupIceServers = createServerFn({ method: "POST" })
         throw reason;
       }
     }
-    const key = process.env["LOVABLE_API_KEY"]; const connection = process.env["TWILIO_API_KEY"];
-    if (!key || !connection) throw new Error("Collegamento video non configurato.");
-    const response = await fetch("https://connector-gateway.lovable.dev/twilio/Tokens.json", {
-      method: "POST", headers: { Authorization: `Bearer ${key}`, "X-Connection-Api-Key": connection, "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ Ttl: "3600" }), signal: AbortSignal.timeout(12000),
-    });
+    const { twilioConfigured, twilioPost } = await import("./twilio.server");
+    if (!twilioConfigured()) throw new Error("Collegamento video non configurato.");
+    const response = await twilioPost("/Tokens.json", { Ttl: "3600" });
     if (!response.ok) throw new Error("Collegamento video non disponibile. Riprova.");
     const body = await response.json() as { ice_servers?: RTCIceServer[] };
     if (!body.ice_servers?.some((server) => (Array.isArray(server.urls) ? server.urls : [server.urls]).some((url) => url.startsWith("turn:")))) throw new Error("Collegamento tra reti non disponibile.");
