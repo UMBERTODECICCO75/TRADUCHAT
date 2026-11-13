@@ -1,19 +1,18 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-/** Twilio Verify service used to send and check 6-digit SMS or voice codes. */
-const VERIFY_SERVICE_SID = "VA3f78e5feb58be6b7fcad85c1e844ce50";
-const GATEWAY = "https://connector-gateway.lovable.dev/twilio";
+import { toE164 } from "./phone";
 
-/** Turns what the person typed into E.164 (Italian numbers default to +39). */
-function toE164(raw: string): string | null {
-  const trimmed = raw.trim().replace(/[\s().-]/g, "");
-  // An international prefix must be explicit (+ or 00). Bare local numbers default to Italy.
-  const explicit = trimmed.startsWith("+") || trimmed.startsWith("00");
-  const digits = trimmed.startsWith("+") ? trimmed.slice(1) : trimmed.startsWith("00") ? trimmed.slice(2) : trimmed;
-  if (!/^\d{6,15}$/.test(digits)) return null;
-  const normalized = explicit || digits.startsWith("39") ? digits : `39${digits}`;
-  return /^\d{8,15}$/.test(normalized) ? `+${normalized}` : null;
+/** Languages Twilio Verify can use for the SMS / voice message; anything else falls back to English. */
+const VERIFY_LOCALES: Record<string, string> = {
+  it: "it", en: "en", es: "es", fr: "fr", de: "de", ru: "ru", pt: "pt", ar: "ar", zh: "zh", "zh-TW": "zh-HK",
+};
+function verifyLocale(lang?: string) {
+  return (lang && (VERIFY_LOCALES[lang] ?? VERIFY_LOCALES[lang.split("-")[0] ?? ""])) || "en";
+}
+
+async function verifyServiceSid() {
+  return (await import("./twilio.server")).VERIFY_SERVICE_SID;
 }
 
 /** Synthetic login address derived from the phone number. */
@@ -22,18 +21,8 @@ function phoneEmail(e164: string) {
 }
 
 async function twilio(path: string, form: Record<string, string>) {
-  const lovableKey = process.env["LOVABLE_API_KEY"];
-  const twilioKey = process.env["TWILIO_API_KEY"];
-  if (!lovableKey || !twilioKey) throw new Error("Verifica telefonica non configurata.");
-  const response = await fetch(`${GATEWAY}${path}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${lovableKey}`,
-      "X-Connection-Api-Key": twilioKey,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams(form),
-  });
+  const { twilioPost } = await import("./twilio.server");
+  const response = await twilioPost(path, form);
   const text = await response.text();
   if (!response.ok) {
     console.error(`Twilio Verify failed [${response.status}]: ${text}`);
@@ -46,8 +35,10 @@ async function twilio(path: string, form: Record<string, string>) {
 
 /** Sends a 6-digit code by SMS or automated voice call to the given phone number. */
 export const sendPhoneCode = createServerFn({ method: "POST" })
-  .inputValidator((input: { phone: string; channel: "sms" | "call" }) =>
-    z.object({ phone: z.string().min(5).max(30), channel: z.enum(["sms", "call"]) }).parse(input),
+  .inputValidator((input: { phone: string; channel: "sms" | "call"; locale?: string }) =>
+    z
+      .object({ phone: z.string().min(5).max(30), channel: z.enum(["sms", "call"]), locale: z.string().max(10).optional() })
+      .parse(input),
   )
   .handler(async ({ data }) => {
     const to = toE164(data.phone);
@@ -62,10 +53,10 @@ export const sendPhoneCode = createServerFn({ method: "POST" })
     if (limitError) throw new Error("Verifica temporaneamente non disponibile. Riprova più tardi.");
     if (allowed === false) throw new Error("Troppi tentativi. Riprova tra un'ora.");
 
-    const sent = await twilio(`/verify/v2/Services/${VERIFY_SERVICE_SID}/Verifications`, {
+    const sent = await twilio(`/verify/v2/Services/${await verifyServiceSid()}/Verifications`, {
       To: to,
       Channel: data.channel,
-      Locale: "it",
+      Locale: verifyLocale(data.locale),
     });
     if (sent.status !== "pending") throw new Error("Non riesco a inviare il codice. Riprova.");
     return { phone: to };
@@ -92,7 +83,7 @@ export const verifyPhoneCode = createServerFn({ method: "POST" })
     if (limitError) throw new Error("Verifica temporaneamente non disponibile. Riprova più tardi.");
     if (allowed === false) throw new Error("Troppi tentativi di verifica. Riprova tra un'ora.");
 
-    const check = await twilio(`/verify/v2/Services/${VERIFY_SERVICE_SID}/VerificationCheck`, {
+    const check = await twilio(`/verify/v2/Services/${await verifyServiceSid()}/VerificationCheck`, {
       To: to,
       Code: data.code,
     });
