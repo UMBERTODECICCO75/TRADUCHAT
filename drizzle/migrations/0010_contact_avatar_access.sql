@@ -1,7 +1,0 @@
-CREATE FUNCTION public.contact_avatar(profile_name text) RETURNS text LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$ SELECT p.avatar_path FROM public.profiles p WHERE auth.uid() IS NOT NULL AND (p.id = auth.uid() OR NOT p.incognito) AND lower(regexp_replace(p.username, '\s', '', 'g')) = lower(regexp_replace(profile_name, '\s', '', 'g')) AND split_part(p.avatar_path, '/', 1) = p.id::text LIMIT 1; $$;
-REVOKE ALL ON FUNCTION public.contact_avatar(text) FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION public.contact_avatar(text) TO authenticated;
-CREATE FUNCTION public.can_read_contact_avatar(photo_path text) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$ SELECT auth.uid() IS NOT NULL AND EXISTS (SELECT 1 FROM public.profiles p WHERE p.avatar_path = photo_path AND split_part(photo_path, '/', 1) = p.id::text AND (p.id = auth.uid() OR NOT p.incognito)); $$;
-REVOKE ALL ON FUNCTION public.can_read_contact_avatar(text) FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION public.can_read_contact_avatar(text) TO authenticated;
-CREATE POLICY "read discoverable contact avatar" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'profile-photos' AND public.can_read_contact_avatar(name));

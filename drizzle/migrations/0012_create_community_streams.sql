@@ -1,0 +1,14 @@
+CREATE TABLE public.community_streams (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), room_id UUID NOT NULL, owner_id UUID NOT NULL, status TEXT NOT NULL DEFAULT 'live', started_at TIMESTAMPTZ NOT NULL DEFAULT now(), ended_at TIMESTAMPTZ);
+GRANT SELECT, INSERT, UPDATE ON public.community_streams TO authenticated;
+GRANT ALL ON public.community_streams TO service_role;
+ALTER TABLE public.community_streams ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Members read community streams" ON public.community_streams FOR SELECT TO authenticated USING (EXISTS (SELECT 1 FROM public.room_members rm WHERE rm.room_id = community_streams.room_id AND rm.user_id = auth.uid()));
+CREATE POLICY "Owner manages community streams" ON public.community_streams FOR INSERT TO authenticated WITH CHECK (owner_id = auth.uid());
+CREATE POLICY "Owner updates community streams" ON public.community_streams FOR UPDATE TO authenticated USING (owner_id = auth.uid()) WITH CHECK (owner_id = auth.uid());
+CREATE TABLE public.stream_segments (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), stream_id UUID NOT NULL REFERENCES public.community_streams(id) ON DELETE CASCADE, seq INTEGER NOT NULL, path TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT now(), UNIQUE (stream_id, seq));
+GRANT SELECT, INSERT ON public.stream_segments TO authenticated;
+GRANT ALL ON public.stream_segments TO service_role;
+ALTER TABLE public.stream_segments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Members read stream segments" ON public.stream_segments FOR SELECT TO authenticated USING (EXISTS (SELECT 1 FROM public.community_streams cs JOIN public.room_members rm ON rm.room_id = cs.room_id WHERE cs.id = stream_segments.stream_id AND rm.user_id = auth.uid()));
+CREATE POLICY "Owner inserts stream segments" ON public.stream_segments FOR INSERT TO authenticated WITH CHECK (EXISTS (SELECT 1 FROM public.community_streams cs WHERE cs.id = stream_segments.stream_id AND cs.owner_id = auth.uid()));
+CREATE INDEX stream_segments_stream_idx ON public.stream_segments (stream_id, seq);

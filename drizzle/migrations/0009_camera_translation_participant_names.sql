@@ -1,3 +1,0 @@
-CREATE FUNCTION public.set_camera_translation_names() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$ BEGIN SELECT username INTO NEW.sender_name FROM public.profiles WHERE id = NEW.sender_id; SELECT username INTO NEW.recipient_name FROM public.profiles WHERE id = NEW.recipient_id; RETURN NEW; END $$;
-REVOKE ALL ON FUNCTION public.set_camera_translation_names() FROM PUBLIC, anon, authenticated;
-CREATE TRIGGER camera_translation_names BEFORE INSERT ON public.camera_translations FOR EACH ROW EXECUTE FUNCTION public.set_camera_translation_names();

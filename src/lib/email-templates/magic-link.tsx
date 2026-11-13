@@ -14,29 +14,34 @@ import {
 interface MagicLinkEmailProps {
   siteName: string
   confirmationUrl: string
+  token?: string
 }
 
 export const MagicLinkEmail = ({
   siteName,
   confirmationUrl,
+  token,
 }: MagicLinkEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="it" dir="ltr">
     <Head>
       <style>{darkModeCss}</style>
     </Head>
-    <Preview>Your login link for {siteName}</Preview>
+    <Preview>Il tuo codice di accesso per {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Your login link</Heading>
+        <Heading style={h1}>Il tuo codice di accesso</Heading>
         <Text style={text}>
-          Click the button below to log in to {siteName}. This link will expire
-          shortly.
+          Usa il codice a 6 cifre qui sotto per accedere a {siteName}. Scade a
+          breve.
         </Text>
+        {token && (
+          <Text style={codeStyle}>{token}</Text>
+        )}
         <Button className="dm-btn" style={button} href={confirmationUrl}>
-          Log In
+          Accedi
         </Button>
         <Text style={footer}>
-          If you didn't request this link, you can safely ignore this email.
+          Se non hai richiesto tu questo codice, puoi ignorare questa email.
         </Text>
       </Container>
     </Body>
@@ -59,11 +64,19 @@ const text = {
   lineHeight: '1.5',
   margin: '0 0 25px',
 }
+const codeStyle = {
+  fontFamily: 'Courier, monospace',
+  fontSize: '28px',
+  fontWeight: 'bold' as const,
+  letterSpacing: '4px',
+  color: '#000000',
+  margin: '0 0 25px',
+}
 const button = {
-  backgroundColor: '#7c3aed',
+  backgroundColor: '#000000',
   color: '#ffffff',
   fontSize: '14px',
-  border: '1px solid #7c3aed',
+  border: '1px solid #000000',
   borderRadius: '8px',
   padding: '12px 20px',
   textDecoration: 'none',

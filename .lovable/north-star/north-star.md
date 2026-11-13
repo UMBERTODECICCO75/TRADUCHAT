@@ -2,8 +2,8 @@
 
 # Stella polare
 
-Persone che parlano lingue diverse si capiscono e parlano liberamente
+Persone che parlano lingue diverse si capiscono e continuano a parlarsi
 
 ## Metrica
 
-Messaggi tradotti consegnati all'altra persona ogni giorno
+Messaggi e vocali consegnati tradotti nella lingua del destinatario ogni giorno

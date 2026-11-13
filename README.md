@@ -1,23 +1,18 @@
-<p align="center">
-  <img src=".github/traduchat-logo.png" alt="TraduChat" width="160" />
-</p>
+# TraduChat
 
-<h1 align="center">TraduChat</h1>
-<p align="center">Chat con traduzione istantanea in 50 lingue · versione 1.3</p>
-
----
-
-# Welcome to your Lovable project
+TRADUCHAT-ITALY fai il punto
 
 This project was built with [Lovable](https://lovable.dev).
 
+**Live app**: https://traduchat-ai.lovable.app
+
 ## Build with Lovable
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/4be5ac0b-f294-46e3-ada6-d10daec21e46).
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
@@ -29,10 +24,3 @@ cd <repository-name>
 npm i
 npm run dev
 ```
-
-## Built with
-
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
