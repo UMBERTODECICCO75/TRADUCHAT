@@ -7,17 +7,7 @@ function isNewSupabaseApiKey(value: string): boolean {
   return value.startsWith('sb_publishable_') || value.startsWith('sb_secret_');
 }
 
-// The public URL can be reachable only from the browser, so server requests go to the runtime URL of the same backend.
-function serverSupabaseUrl(publicUrl: string, supabaseKey: string): string | undefined {
-  if (typeof window !== 'undefined' || typeof process === 'undefined') return undefined;
-  const serverUrl = process.env['SUPABASE_URL']?.replace(/\/+$/, '');
-  if (!serverUrl || serverUrl === publicUrl || process.env['SUPABASE_PUBLISHABLE_KEY'] !== supabaseKey) return undefined;
-  return serverUrl;
-}
-
-function createSupabaseFetch(supabaseUrl: string, supabaseKey: string): typeof fetch {
-  const publicUrl = supabaseUrl.replace(/\/+$/, '');
-  const serverUrl = serverSupabaseUrl(publicUrl, supabaseKey);
+function createSupabaseFetch(supabaseKey: string): typeof fetch {
   return (input, init) => {
     const headers = new Headers(
       typeof Request !== 'undefined' && input instanceof Request ? input.headers : undefined,
@@ -33,14 +23,6 @@ function createSupabaseFetch(supabaseUrl: string, supabaseKey: string): typeof f
     }
 
     headers.set('apikey', supabaseKey);
-    if (serverUrl) {
-      const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-      if (url.startsWith(`${publicUrl}/`)) {
-        const target = serverUrl + url.slice(publicUrl.length);
-        const request = typeof input === 'string' || input instanceof URL ? target : new Request(target, input);
-        return fetch(request, { ...init, headers });
-      }
-    }
     return fetch(input, { ...init, headers });
   };
 }
@@ -64,7 +46,7 @@ function createSupabaseClient() {
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     global: {
-      fetch: createSupabaseFetch(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY),
+      fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY),
     },
     auth: {
       storage: brokeredPreviewStorage(),

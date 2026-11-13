@@ -5,99 +5,183 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1793442703966,
-      "tag": "0000_profiles",
+      "when": 1790193317031,
+      "tag": "0000_create_signup_codes",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1793443199445,
-      "tag": "0001_add_my_lang_to_profiles",
+      "when": 1790633858811,
+      "tag": "0001_add_profile_nickname",
       "breakpoints": true
     },
     {
       "idx": 2,
       "version": "7",
-      "when": 1793493383030,
-      "tag": "0002_profile_menu_preferences",
+      "when": 1790674035330,
+      "tag": "0002_archive_chat_hidden_items",
       "breakpoints": true
     },
     {
       "idx": 3,
       "version": "7",
-      "when": 1793664713156,
-      "tag": "0003_chat_photos",
+      "when": 1790723837522,
+      "tag": "0003_room_call_signals",
       "breakpoints": true
     },
     {
       "idx": 4,
       "version": "7",
-      "when": 1793664866650,
-      "tag": "0004_chat_groups",
+      "when": 1791682701483,
+      "tag": "0004_create_profile_stories",
       "breakpoints": true
     },
     {
       "idx": 5,
       "version": "7",
-      "when": 1793920372013,
-      "tag": "0005_peer_calls",
+      "when": 1791684119388,
+      "tag": "0005_deny_anonymous_guests",
       "breakpoints": true
     },
     {
       "idx": 6,
       "version": "7",
-      "when": 1793921242764,
-      "tag": "0006_private_livekit_rooms",
+      "when": 1791898180733,
+      "tag": "0006_create_agenda_reminders",
       "breakpoints": true
     },
     {
       "idx": 7,
       "version": "7",
-      "when": 1793930428655,
-      "tag": "0007_camera_translations",
+      "when": 1791901514160,
+      "tag": "0007_agenda_reminders_sms",
       "breakpoints": true
     },
     {
       "idx": 8,
       "version": "7",
-      "when": 1793930626999,
-      "tag": "0008_camera_translation_names",
+      "when": 1792019906226,
+      "tag": "0008_deny_anonymous_agenda_reminders",
       "breakpoints": true
     },
     {
       "idx": 9,
       "version": "7",
-      "when": 1793930637644,
-      "tag": "0009_camera_translation_participant_names",
+      "when": 1792154870391,
+      "tag": "0009_community_profile",
       "breakpoints": true
     },
     {
       "idx": 10,
       "version": "7",
-      "when": 1793932346634,
-      "tag": "0010_contact_avatar_access",
+      "when": 1792154988478,
+      "tag": "0010_community_cover",
       "breakpoints": true
     },
     {
       "idx": 11,
       "version": "7",
-      "when": 1794061751941,
-      "tag": "0011_push_tokens",
+      "when": 1792198582800,
+      "tag": "0011_create_device_sessions",
       "breakpoints": true
     },
     {
       "idx": 12,
       "version": "7",
-      "when": 1794144368217,
-      "tag": "0012_chat_messages",
+      "when": 1792231628264,
+      "tag": "0012_create_community_streams",
       "breakpoints": true
     },
     {
       "idx": 13,
       "version": "7",
-      "when": 1794269314670,
-      "tag": "0013_translated_voice_messages",
+      "when": 1792352035857,
+      "tag": "0013_agenda_phone_calls",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1792407907572,
+      "tag": "0014_ai_credit_wallets",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1792408576458,
+      "tag": "0015_atomic_ai_credits_and_refunds",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1792411778348,
+      "tag": "0016_reliable_credit_ledger_and_account_requests",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792412123933,
+      "tag": "0017_assisted_support_and_credit_recovery",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1792412294472,
+      "tag": "0018_credit_adjustment_reconciliation",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1792468183264,
+      "tag": "0019_chat_hidden_messages_per_user",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792540060798,
+      "tag": "0020_real_video_calls",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1792682562116,
+      "tag": "0021_block_anonymous_sessions",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1792714248787,
+      "tag": "0022_translation_cache",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792947180139,
+      "tag": "0023_newsletter_consent_events",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1792947209620,
+      "tag": "0024_newsletter_verified_contact_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1793157511222,
+      "tag": "0025_group_video_calls",
       "breakpoints": true
     }
   ]

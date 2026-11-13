@@ -1,0 +1,3 @@
+ALTER TABLE public.agenda_reminders ADD COLUMN send_call boolean NOT NULL DEFAULT false, ADD COLUMN call_requested_at timestamptz, ADD COLUMN send_email boolean NOT NULL DEFAULT true;
+COMMENT ON COLUMN public.agenda_reminders.send_sms IS 'DEPRECATED: SMS reminders removed; new reminders use opt-in send_call. Do not convert existing SMS consent into call consent.';
+COMMENT ON COLUMN public.agenda_reminders.sms_sent_at IS 'DEPRECATED: historic SMS delivery marker; phone calls use call_requested_at.';

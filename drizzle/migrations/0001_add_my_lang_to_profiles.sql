@@ -1,1 +1,0 @@
-alter table public.profiles add column my_lang text not null default 'Italiano';

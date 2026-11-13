@@ -1,0 +1,3 @@
+create policy "email_attachments_insert_own" on storage.objects for insert to authenticated with check (bucket_id = 'email-attachments' and (storage.foldername(name))[1] = auth.uid()::text);
+create policy "email_attachments_select_own" on storage.objects for select to authenticated using (bucket_id = 'email-attachments' and (storage.foldername(name))[1] = auth.uid()::text);
+create policy "email_attachments_delete_own" on storage.objects for delete to authenticated using (bucket_id = 'email-attachments' and (storage.foldername(name))[1] = auth.uid()::text);

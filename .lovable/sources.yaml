@@ -1,0 +1,8 @@
+tokens:
+    - file: src/lib/theme.ts
+      operation: js-object-path
+    - file: src/styles.css
+      operation: css-variables
+components:
+    - file: src/integrations/lovable/index.ts
+      operation: ts-named-exports

@@ -1,135 +1,302 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import type { ReactNode } from "react";
-import { CookieSettingsLink } from "@/components/cookie-banner";
+import { ArrowLeft, ShieldCheck } from "lucide-react";
 
-const URL = "https://www.traduchatchat.com/privacy";
-const TITLE = "Informativa Privacy — TraduChat";
-const DESC = "Informativa GDPR di TraduChat: dati personali, chiamate e videochiamate Twilio, cookie tecnici e consenso ai cookie pubblicitari.";
+import { LegalLanguagePicker } from "@/components/LegalLanguagePicker";
+import { NewsletterConsent } from "@/components/NewsletterConsent";
+import { useAutoTranslatedTexts } from "@/lib/useAutoTranslatedTexts";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: TITLE },
-      { name: "description", content: DESC },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESC },
+      { title: "Privacy e GDPR — TraduChat" },
+      {
+        name: "description",
+        content:
+          "Privacy di TraduChat: chi legge chat e vocali, chi li conserva, come funzionano le videochiamate e quali sono i tuoi diritti GDPR.",
+      },
+      { property: "og:title", content: "Privacy e GDPR — TraduChat" },
+      {
+        property: "og:description",
+        content: "Chat, messaggi vocali e videochiamate su TraduChat: accesso ai contenuti, archiviazione, traduzione e diritti GDPR.",
+      },
       { property: "og:type", content: "article" },
-      { property: "og:url", content: URL },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: URL }],
   }),
-  component: Privacy,
+  component: PrivacyPage,
 });
 
-function S({ t, children }: { t: string; children: ReactNode }) {
-  return <section className="space-y-2"><h2 className="font-display text-xl font-extrabold text-secondary">{t}</h2><div className="space-y-2 text-sm leading-relaxed">{children}</div></section>;
-}
+type Block = { kind: "p" | "li"; text: string };
 
-function Table({ head, rows }: { head: string[]; rows: string[][] }) {
+const BACK = "Torna alla home";
+const TITLE = "Privacy e GDPR";
+const INTRO =
+  "Questa informativa spiega quali dati raccoglie TraduChat, perché e come puoi controllarli, secondo il Regolamento UE 2016/679 (GDPR).";
+
+const SECTIONS: { title: string; blocks: Block[] }[] = [
+  {
+    title: "Chi tratta i tuoi dati",
+    blocks: [
+      {
+        kind: "p",
+        text: "Il titolare del trattamento (data controller) è Umbertodecicco Association (entità registrata nel Delaware, USA, EIN 37-2222305; Via Annunziata 30, 80139 Napoli, Italia), che opera con il marchio TraduChat e decide finalità e mezzi del trattamento dei dati descritti in questa informativa. Per qualsiasi richiesta sui tuoi dati puoi scrivere a admin@traduchat.com o inviare una richiesta di assistenza dalla pagina Impostazioni dell'app.",
+      },
+    ],
+  },
+  {
+    title: "Con chi condividiamo i dati",
+    blocks: [
+      { kind: "li", text: "Fornitori di servizi che ci aiutano a far funzionare l'app: Lovable Cloud per hosting, database e spazio file; servizi di intelligenza artificiale tramite Lovable AI; Twilio per verifica telefonica e collegamento delle chiamate; servizi di invio email." },
+      { kind: "li", text: "Paddle.com, il nostro rivenditore online e Merchant of Record, per la vendita dei pacchetti di crediti IA, i pagamenti, la gestione fiscale, le fatture e i rimborsi." },
+      { kind: "li", text: "Consulenti professionali (legali e contabili), quando necessario." },
+      { kind: "li", text: "Autorità pubbliche, solo quando richiesto dalla legge." },
+      {
+        kind: "p",
+        text: "Base giuridica: esecuzione del contratto per fornirti il servizio e gestire gli acquisti, interesse legittimo per sicurezza e prevenzione abusi, obbligo di legge per gli adempimenti fiscali, consenso dove richiesto. Proteggiamo i dati con misure tecniche e organizzative adeguate, come cifratura e controlli di accesso. Se alcuni fornitori trattano dati fuori dallo Spazio economico europeo, il trasferimento avviene con garanzie adeguate (decisioni di adeguatezza o clausole contrattuali standard). Rispondiamo alle richieste sui tuoi diritti entro un mese.",
+      },
+    ],
+  },
+  {
+    title: "Quali dati raccogliamo",
+    blocks: [
+      { kind: "li", text: "Dati dell'account: email, nome visualizzato, lingua, stato, foto del profilo." },
+      {
+        kind: "li",
+        text: "Contenuti che invii: messaggi, traduzioni, testi, foto, PDF e messaggi vocali, insieme alla loro traduzione.",
+      },
+      {
+        kind: "li",
+        text: "Messaggi vocali: l'audio della tua voce che registri e invii nelle conversazioni, conservato come file audio insieme alla sua trascrizione e traduzione.",
+      },
+      { kind: "li", text: "Dati di utilizzo tecnici: data di accesso, stato online e ultima attività." },
+      { kind: "li", text: "Numero di telefono, se scegli la registrazione o l'accesso telefonico." },
+    ],
+  },
+  {
+    title: "Chi può leggere le chat e ascoltare i vocali",
+    blocks: [
+      { kind: "p", text: "Nelle conversazioni possono leggere i messaggi, le trascrizioni e le traduzioni, e ascoltare i vocali, gli utenti autorizzati ad accedere alla stanza. Nei gruppi questi contenuti sono condivisi con i membri della conversazione, non soltanto con le persone presenti in una videochiamata. Chi entra con le modalità di accesso previste dalla stanza può consultare anche lo storico disponibile. Non condividere il codice o il link di una conversazione con persone a cui non vuoi dare accesso." },
+      { kind: "p", text: "I messaggi non sono pubblicati automaticamente per tutti i visitatori del sito. Gli allegati e i vocali sono conservati in uno spazio file privato e resi disponibili tramite link temporanei, normalmente validi per 5 minuti. Chi possiede un link già generato può usarlo fino alla scadenza: evita di inoltrarlo fuori dalla conversazione." },
+      { kind: "p", text: "I contenuti sono elaborati dai sistemi del servizio per archiviazione e traduzione. Non sono protetti da cifratura end-to-end che li renda illeggibili a TraduChat e ai servizi incaricati dell'elaborazione. Il titolare e i fornitori che gestiscono i sistemi possono avere accesso tecnico ai dati per erogare il servizio, assistenza, sicurezza o obblighi di legge; ciò è distinto dalla lettura da parte degli altri utenti. Il pannello amministrativo attuale mostra dati degli account e metadati delle conversazioni, come il numero e le date dei messaggi, non un elenco dei testi o un lettore di vocali." },
+      { kind: "p", text: "Un partecipante può conservare una propria copia dei contenuti a cui ha accesso, per esempio scaricando un allegato, esportando la conversazione o effettuando una cattura dello schermo. TraduChat non può cancellare a distanza copie già salvate o condivise da altri partecipanti." },
+    ],
+  },
+  {
+    title: "Videochiamate reali",
+    blocks: [
+      { kind: "p", text: "Quando avvii, accetti o raggiungi una videochiamata, il browser chiede accesso a microfono e fotocamera. Audio e video dal vivo sono trasmessi tramite WebRTC agli altri partecipanti collegati alla chiamata, a due o di gruppo, con cifratura del trasporto. TraduChat non registra né archivia l'audio o il video dal vivo. Puoi disattivare la fotocamera, silenziare l'audio ricevuto o terminare la tua partecipazione. Non possiamo impedire che un altro partecipante effettui una registrazione con strumenti esterni." },
+      { kind: "p", text: "Il pulsante microfono della chat registra invece un messaggio vocale che scegli di inviare: quel file, la sua trascrizione e la traduzione vengono archiviati nella conversazione, anche se registrati durante una videochiamata. Sono accessibili agli utenti autorizzati della stanza, compresi quelli non presenti nella chiamata, e restano disponibili dopo la sua conclusione secondo le regole della chat. L'audio parlato dal vivo non viene tradotto automaticamente: la traduzione riguarda i messaggi scritti e i vocali inviati." },
+      { kind: "p", text: "Twilio fornisce il collegamento tra reti tramite server STUN/TURN e può trattare indirizzi IP e traffico cifrato necessario al collegamento. TraduChat conserva dati tecnici per negoziare la connessione e metadati quali stanza, partecipanti, stato e orari della chiamata per il funzionamento del servizio e il conteggio dei crediti; questi dati non sono registrazioni della conversazione audio o video." },
+    ],
+  },
+  {
+    title: "Crediti a consumo per le traduzioni",
+    blocks: [
+      { kind: "p", text: "Le traduzioni usano crediti a consumo: 1 credito per ogni messaggio scritto tradotto e 1 credito per ogni messaggio vocale tradotto, addebitati all’account che li invia. Le videochiamate, a due o di gruppo, costano 1 credito per ogni minuto iniziato dopo la risposta, scalato dal partecipante con più crediti in quel momento, non soltanto da chi chiama. Ogni nuovo account riceve 10 crediti gratuiti. Messaggi nella stessa lingua e lettura dei messaggi ricevuti restano gratuiti." },
+      { kind: "p", text: "I due utenti collegati hanno saldi separati: per scambiarsi messaggi che richiedono una traduzione in entrambe le direzioni, ciascuno deve avere crediti disponibili sul proprio account. I crediti di un utente non sono condivisi e non coprono gli invii dell’altro. Se uno esaurisce il saldo, non può inviare nuovi messaggi da tradurre, ma può continuare a ricevere e leggere quelli dell’altro gratuitamente. Nelle videochiamate, a due o di gruppo, ogni minuto è scalato dal partecipante che in quel momento ha più crediti; la chiamata si interrompe solo quando nessun partecipante ha più crediti." },
+      { kind: "p", text: "Per calcolare il saldo registriamo solo tipo di utilizzo, data e ora, numero di crediti scalati e il riferimento tecnico del messaggio o della chiamata (per i minuti di chiamata, l'inizio e la durata). Non registriamo audio o video delle chiamate. Base giuridica: esecuzione del contratto e obblighi contabili e fiscali; questi dati restano per il tempo richiesto dalla legge e puoi chiederne copia in qualsiasi momento. I pagamenti sono gestiti da Paddle.com come Merchant of Record." },
+    ],
+  },
+  {
+    title: "Registrazione telefonica: solo numeri verificati",
+    blocks: [
+      {
+        kind: "p",
+        text: "La registrazione tramite numero di telefono è consentita solo dopo aver verificato il numero inserendo il codice ricevuto via SMS o chiamata automatica. La verifica conferma che hai accesso al numero indicato; non costituisce una verifica della tua identità anagrafica. Gli altri metodi di registrazione disponibili non richiedono un numero telefonico.",
+      },
+      {
+        kind: "p",
+        text: "Per recapitare e controllare il codice, il numero viene trasmesso a Twilio, il servizio utilizzato per la verifica telefonica. I codici servono a proteggere l'accesso e prevenire abusi. Un numero inserito o modificato nel profilo non diventa automaticamente verificato.",
+      },
+    ],
+  },
+  {
+    title: "Perché li usiamo",
+    blocks: [
+      { kind: "li", text: "Far funzionare chat, gruppi e traduzioni (esecuzione del servizio richiesto)." },
+      { kind: "li", text: "Inviarti i codici di accesso e le notifiche legate alle conversazioni." },
+      { kind: "li", text: "Sicurezza dell'app e prevenzione degli abusi (interesse legittimo)." },
+      { kind: "p", text: "Non vendiamo i tuoi dati. Nella versione verificata non risultano tag pubblicitari Google Ads configurati. Gli strumenti di misurazione dell'hosting sono descritti nella Cookie policy, separatamente dai dati necessari al servizio." },
+    ],
+  },
+  {
+    title: "Consenso facoltativo agli aggiornamenti via email",
+    blocks: [
+      { kind: "p", text: "Con il tuo consenso specifico e facoltativo, Umbertodecicco Association può usare l'indirizzo email del tuo account per inviarti annunci sulle nuove funzionalità e sugli aggiornamenti di TraduChat, con admin@traduchat.com come mittente. La base giuridica è il consenso (articolo 6, paragrafo 1, lettera a, del GDPR), separato dall'accettazione dei termini e dalla presa visione di questa informativa." },
+      { kind: "p", text: "Formula del consenso: «Acconsento a ricevere via email da admin@traduchat.com comunicazioni sugli aggiornamenti e sulle nuove funzionalità di TraduChat. Il consenso è facoltativo e posso revocarlo in qualsiasi momento»." },
+      { kind: "p", text: "La registrazione, la lettura di questa pagina e l'uso dell'app non costituiscono consenso. La scelta deve essere espressa con un'azione positiva, senza caselle preselezionate. Rifiutare o revocare il consenso non limita l'accesso all'app, ai crediti acquistati o alle sue funzionalità." },
+      { kind: "p", text: "Puoi revocare il consenso gratuitamente tramite il link di disiscrizione presente in ogni comunicazione oppure scrivendo a admin@traduchat.com. La revoca non pregiudica la liceità del trattamento effettuato prima della revoca. L'indirizzo viene usato per questi annunci fino alla revoca; l'eventuale prova del consenso e della revoca viene conservata solo per il tempo necessario a documentare la scelta e tutelare i diritti." },
+      { kind: "p", text: "Puoi salvare o revocare la tua scelta qui sotto dopo l'accesso con un account con email verificata. Registriamo l'indirizzo email, la data e la versione del consenso; a ogni nuova accettazione inviamo a admin@traduchat.com un avviso con l'email dell'account e il link al sito. Gli annunci agli iscritti richiedono un servizio dedicato, non ancora attivo. Le email necessarie per accesso, sicurezza e acquisti restano distinte dagli annunci sugli aggiornamenti." },
+    ],
+  },
+  {
+    title: "Traduzione automatica",
+    blocks: [
+      {
+        kind: "p",
+        text: "Per tradurre i testi, trascrivere i messaggi vocali e leggere il testo dalle foto, i contenuti necessari vengono inviati ai servizi di intelligenza artificiale tramite Lovable AI. L'audio registrato di un vocale viene inviato per la trascrizione; il testo ottenuto viene elaborato per la traduzione. Anche le traduzioni automatiche nella lingua di lettura richiedono l'elaborazione del testo. La lettura ad alta voce può usare la sintesi del browser o del dispositivo, oppure un servizio di sintesi vocale al quale viene trasmesso il testo. Non dichiariamo che i fornitori non conservino dati o non li usino per addestramento senza una verifica delle rispettive condizioni. Per informazioni sulle condizioni applicabili puoi scrivere a admin@traduchat.com. Invia solo contenuti che sei disposto a far elaborare da servizi esterni.",
+      },
+      {
+        kind: "p",
+        text: "Risposte alla posta con l'IA: se incolli un'email ricevuta per preparare una risposta con l'intelligenza artificiale, il testo dell'email e le tue indicazioni vengono inviati al servizio AI che redige la risposta. Se scegli di ascoltare la risposta, anche il suo testo viene inviato a un servizio di sintesi vocale che lo trasforma in un breve messaggio vocale. TraduChat non conserva il testo incollato: resta solo nella pagina finché non chiudi o scrivi una nuova email.",
+      },
+    ],
+  },
+  {
+    title: "Dove restano i dati e per quanto",
+    blocks: [
+      {
+        kind: "p",
+        text: "L'archiviazione del servizio è gestita da Umbertodecicco Association tramite Lovable Cloud: messaggi originali, trascrizioni, traduzioni e riferimenti agli allegati sono conservati nel database; i file vocali e gli altri allegati nello spazio file privato. La scadenza di un link temporaneo non cancella il file. Nella versione attuale non è prevista una scadenza automatica generale dello storico delle chat e dei vocali; la loro conservazione è distinta da quella dei dati contabili e dai tempi propri dei fornitori esterni.",
+      },
+      { kind: "p", text: "Il browser può conservare sul dispositivo copie locali dei messaggi, delle traduzioni e dei dati della conversazione, per ritrovare lo storico. Queste copie sono distinte dall'archivio del servizio e dai file eventualmente scaricati. Le voci e le durate della memoria locale sono descritte nella Cookie policy. Se usi un dispositivo condiviso, considera che chi accede al browser o ai file salvati potrebbe accedere anche alle copie locali." },
+      { kind: "p", text: "Rimuovere un messaggio ricevuto dalla propria chat o un allegato dallo Storico lo nasconde per il proprio account: non cancella il messaggio condiviso né il file conservato per gli altri. La cancellazione condivisa di un messaggio, consentita al suo autore o al proprietario della conversazione, rimuove il messaggio e richiede la rimozione degli allegati associati dallo spazio file. Uscire da una stanza o rimuovere un contatto non equivale alla cancellazione dello storico per gli altri partecipanti." },
+      { kind: "p", text: "Puoi richiedere la cancellazione assistita dell'account o dei tuoi dati nelle Impostazioni o scrivendo a admin@traduchat.com. La richiesta viene esaminata tenendo conto dei contenuti condivisi, dei diritti degli altri partecipanti e degli obblighi di conservazione: non determina una cancellazione automatica immediata di tutti i messaggi, file o documenti di acquisto. I dati personali vengono cancellati o anonimizzati quando non più necessari; i documenti degli acquisti restano per gli obblighi contabili applicabili. Le copie già salvate da altri partecipanti non sono cancellate da questa procedura." },
+    ],
+  },
+  {
+    title: "Aggiornamenti delle funzionalità",
+    blocks: [
+      {
+        kind: "p",
+        text: "TraduChat si arricchisce nel tempo di nuove funzionalità, come le storie, le community e l'assistente che risponde con testo, voce ed email. Ogni funzionalità aggiuntiva usa solo i dati necessari a offrirti quel servizio: la foto e la descrizione delle storie e delle community, per esempio, vengono conservate finché non le elimini o non esci dalla community.",
+      },
+      {
+        kind: "p",
+        text: "La sezione «Da ricordare» è stata rimossa: gli appunti con allarme, l'avviso email facoltativo e il pulsante WhatsApp non sono più disponibili e non parte più nessun avviso automatico. Gli appunti già salvati restano nel database e puoi chiederne la cancellazione con le modalità indicate nella sezione «I tuoi diritti». I codici SMS e le chiamate per accedere all'account restano disponibili.",
+      },
+    ],
+  },
+  {
+    title: "I tuoi diritti",
+    blocks: [
+      { kind: "li", text: "Accedere ai tuoi dati e ottenerne una copia." },
+      { kind: "li", text: "Correggere o aggiornare i dati del profilo, direttamente dall'app." },
+      { kind: "li", text: "Rimuovere contenuti dalla propria vista e richiedere la cancellazione dei propri dati o dell'account, con le distinzioni e i limiti indicati nella sezione sulla conservazione." },
+      { kind: "li", text: "Limitare o opporti a un trattamento e revocare un consenso dato." },
+      { kind: "li", text: "Proporre reclamo al Garante per la protezione dei dati personali." },
+    ],
+  },
+  {
+    title: "Statistiche del sito e pubblicità",
+    blocks: [
+      {
+        kind: "p",
+        text: "Il sito pubblicato include Lovable Analytics, fornito dall'hosting Lovable tramite lo script /~flock.js e il percorso /~api/analytics. Lo script prevede un identificatore di sessione e dati come pagina visitata, provenienza della visita, informazioni del browser, lingua e paese stimato dal fuso orario. Non descriviamo questi dati come anonimi: l'anonimizzazione e la durata di conservazione sui sistemi del fornitore non sono state verificate. Nella versione controllata non risultano tag Google Analytics o Google Ads configurati.",
+      },
+      {
+        kind: "p",
+        text: "Il cookie statistico session-id ha una durata di 30 minuti, rinnovata agli eventi, e identifica una sessione in modo pseudonimo: non è un cookie anonimo. La scelta nel banner viene salvata sul dispositivo e non limita l'uso dell'app. Nella verifica del 26 ottobre 2026 le statistiche dell'hosting continuano anche scegliendo «Solo necessari». Non abbiamo attivato ulteriori cookie per statistiche anonime: prima occorre verificare l'anonimato effettivo e un blocco preventivo funzionante fino al consenso, ove richiesto. Per chiarimenti puoi scrivere a admin@traduchat.com.",
+      },
+    ],
+  },
+  {
+    title: "Cookie",
+    blocks: [
+      {
+        kind: "p",
+        text: "Usiamo memoria del browser per accesso, preferenze e copie locali delle conversazioni. L'hosting può usare cookie tecnici e uno strumento di statistiche. La Cookie policy elenca nomi, finalità, durate e limiti della verifica, distinguendo i cookie dalla memoria locale.",
+      },
+    ],
+  },
+  {
+    title: "Minori",
+    blocks: [
+      {
+        kind: "p",
+        text: "Il servizio non è destinato a minori di 14 anni senza il consenso di chi esercita la responsabilità genitoriale.",
+      },
+    ],
+  },
+];
+
+const FOOTER = "Se aggiorniamo questa informativa, la nuova versione sarà pubblicata su questa pagina.";
+const COOKIE_LINK = "Vai alla Cookie policy";
+
+const FLAT: readonly string[] = [
+  BACK,
+  TITLE,
+  INTRO,
+  ...SECTIONS.flatMap((section) => [section.title, ...section.blocks.map((block) => block.text)]),
+  FOOTER,
+  COOKIE_LINK,
+  "Ultimo aggiornamento: 30 ottobre 2026",
+];
+
+const SECTION_OFFSETS = (() => {
+  let index = 3;
+  return SECTIONS.map((section) => {
+    const start = index;
+    index += 1 + section.blocks.length;
+    return start;
+  });
+})();
+
+const FOOTER_INDEX = FLAT.length - 3;
+const COOKIE_LINK_INDEX = FLAT.length - 2;
+const UPDATED_INDEX = FLAT.length - 1;
+
+function PrivacyPage() {
+  const { texts, language, setLanguage, loading, rtl } = useAutoTranslatedTexts(FLAT);
+
   return (
-    <div className="overflow-x-auto rounded-xl border border-border">
-      <table className="w-full text-left text-xs">
-        <thead className="bg-muted"><tr>{head.map((h) => <th key={h} className="p-2 font-bold">{h}</th>)}</tr></thead>
-        <tbody>{rows.map((r, i) => <tr key={i} className="border-t border-border">{r.map((c, j) => <td key={j} className="p-2 align-top">{c}</td>)}</tr>)}</tbody>
-      </table>
+    <div translate="no" className="min-h-screen bg-background text-foreground" dir={rtl ? "rtl" : "ltr"}>
+      <main className="mx-auto w-full max-w-2xl px-5 py-8">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+          <ArrowLeft className="size-4" /> {texts[0]}
+        </Link>
+
+        <div className="mt-6 flex items-center gap-3">
+          <span className="flex size-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+            <ShieldCheck className="size-5" />
+          </span>
+          <h1 className="font-sans text-2xl font-extrabold tracking-tight">{texts[1]}</h1>
+        </div>
+
+        <p className="mt-3 text-sm text-muted-foreground"><time dateTime="2026-10-30">{texts[UPDATED_INDEX]}</time></p>
+        <LegalLanguagePicker language={language} onChange={setLanguage} loading={loading} />
+
+        <p className="mt-3 text-sm text-muted-foreground">{texts[2]}</p>
+        <p className="mt-3 text-sm"><a className="text-primary underline" href="mailto:admin@traduchat.com">admin@traduchat.com</a></p>
+
+        {SECTIONS.map((section, sectionIndex) => {
+          const start = SECTION_OFFSETS[sectionIndex];
+          if (start === undefined) return null;
+          const paragraphs = section.blocks
+            .map((block, i) => ({ ...block, text: texts[start + 1 + i] ?? block.text }))
+            .filter((block) => block.kind === "p");
+          const items = section.blocks
+            .map((block, i) => ({ ...block, text: texts[start + 1 + i] ?? block.text }))
+            .filter((block) => block.kind === "li");
+
+          return (
+            <section key={section.title} className="mt-8">
+              <h2 className="font-sans text-lg font-bold text-foreground">{texts[start]}</h2>
+              <div className="mt-2 space-y-2 text-sm text-muted-foreground">
+                {items.length ? (
+                  <ul className="list-disc space-y-1 pl-5">
+                    {items.map((block) => (
+                      <li key={block.text}>{block.text}</li>
+                    ))}
+                  </ul>
+                ) : null}
+                {paragraphs.map((block) => (
+                  <p key={block.text}>{block.text}</p>
+                ))}
+              </div>
+              {section.title === "Consenso facoltativo agli aggiornamenti via email" && <NewsletterConsent />}
+            </section>
+          );
+        })}
+
+        <p className="mt-6 text-sm">
+          <Link to="/cookie" className="font-semibold text-primary underline">
+            {texts[COOKIE_LINK_INDEX]}
+          </Link>
+        </p>
+
+        <p className="mt-10 text-xs text-muted-foreground">{texts[FOOTER_INDEX]}</p>
+      </main>
     </div>
-  );
-}
-
-function Privacy() {
-  return (
-    <main className="mx-auto max-w-3xl space-y-8 bg-background px-6 py-10 text-foreground">
-      <Link to="/" className="text-sm font-semibold text-primary">← Torna a TraduChat</Link>
-      <header className="space-y-2">
-        <h1 className="font-display text-3xl font-extrabold text-secondary">Informativa Privacy TraduChat</h1>
-        <p className="text-xs text-muted-foreground">Ultimo aggiornamento: 6 novembre 2026 · ai sensi degli artt. 13 e 14 del Regolamento (UE) 2016/679 (GDPR)</p>
-        <p className="text-sm">Questa informativa descrive il trattamento dei dati per chat, chiamate e videochiamate con traduzione automatica, l'utilizzo di Twilio per le stanze audio/video e le condizioni per l'eventuale utilizzo di cookie pubblicitari. Vale per il sito e l'app su <a className="underline" href="https://www.traduchatchat.com">www.traduchatchat.com</a> e sui domini collegati. TraduChat non vende i dati personali a terzi.</p>
-      </header>
-
-      <S t="1. Titolare del trattamento">
-        <p>Umbertodecicco Association (TRADUCHAT), EIN 37-2222305, Via Annunziata 30, 80139 Napoli, Italia. Email: <a className="underline" href="mailto:privacy@traduchat.com">privacy@traduchat.com</a>. Sito: <a className="underline" href="https://www.traduchatchat.com">www.traduchatchat.com</a>.</p>
-        <p>Avendo sede in Italia, non è necessario un rappresentante UE (art. 27). Autorità di controllo: Garante per la protezione dei dati personali. Non è stato nominato un DPO perché non obbligatorio.</p>
-      </S>
-
-      <S t="2. Dati che trattiamo">
-        <Table head={["Categoria", "Esempi", "Origine"]} rows={[
-          ["Dati dell'account", "nome o nickname, email, password cifrata, lingua preferita, foto profilo (facoltativa)", "dall'utente, alla registrazione"],
-          ["Contenuti di comunicazione", "messaggi di testo, audio e video di chiamate, testi originali e tradotti", "dall'utente, durante l'uso"],
-          ["Contatti e conversazioni", "utenti con cui si chatta, data e ora di messaggi e chiamate", "generati dal servizio"],
-          ["Dati di acquisto", "crediti acquistati, importo, paese, stato del pagamento", "da Paddle (non riceviamo i dati completi della carta)"],
-          ["Dati tecnici", "indirizzo IP, dispositivo e browser, log di accesso ed errori", "raccolti automaticamente"],
-          ["Richieste di assistenza", "contenuto di email o messaggi al supporto", "dall'utente"],
-        ]} />
-        <p>Non trattiamo intenzionalmente categorie particolari di dati (art. 9). Se inserite in un messaggio, vengono trattate solo per tradurle e consegnarle al destinatario.</p>
-      </S>
-
-      <S t="3. Finalità e basi giuridiche">
-        <Table head={["Finalità", "Base giuridica (art. 6)"]} rows={[
-          ["Creare e gestire l'account", "esecuzione del contratto (lett. b)"],
-          ["Tradurre e consegnare messaggi, chiamate e videochiamate", "esecuzione del contratto (lett. b)"],
-          ["Vendere e gestire i crediti", "contratto (lett. b) e obblighi fiscali (lett. c)"],
-          ["Sicurezza, prevenzione abusi e frodi, log tecnici", "legittimo interesse (lett. f)"],
-          ["Statistiche aggregate e anonime", "legittimo interesse (lett. f)"],
-          ["Assistenza", "contratto o misure precontrattuali (lett. b)"],
-          ["Difesa dei nostri diritti", "legittimo interesse (lett. f)"],
-          ["Newsletter (solo se attivate)", "consenso (lett. a), revocabile"],
-          ["Cookie pubblicitari e misurazione delle campagne, se attivati", "consenso preventivo (lett. a), facoltativo e revocabile"],
-        ]} />
-        <p>Eventuali attività pubblicitarie basate su cookie o identificatori non necessari richiedono il consenso preventivo. Non vendiamo i dati e non adottiamo decisioni automatizzate con effetti giuridici (art. 22).</p>
-      </S>
-
-      <S t="4. Messaggi, chiamate e traduzioni">
-        <ul className="list-disc space-y-1 pl-5">
-          <li>I contenuti sono usati solo per tradurli e consegnarli ai partecipanti.</li>
-          <li>Messaggi: conservati nell'account finché l'utente non li elimina o chiude l'account.</li>
-          <li>Audio e video delle chiamate: elaborati in tempo reale per la traduzione, non registrati né archiviati.</li>
-          <li>I fornitori di traduzione ricevono il contenuto solo per tradurlo, come responsabili del trattamento.</li>
-          <li>Non usiamo i contenuti degli utenti per addestrare modelli di intelligenza artificiale.</li>
-          <li>Il personale non legge le conversazioni, salvo segnalazione di abuso, richiesta dell'utente o obbligo di legge.</li>
-        </ul>
-        <p>La traduzione automatica può contenere errori: per comunicazioni importanti (mediche, legali, contrattuali) è bene verificarla.</p>
-      </S>
-
-      <S t="5. A chi comunichiamo i dati">
-        <p>Solo a fornitori necessari al servizio, vincolati da accordo sul trattamento (art. 28): hosting dell'app, database/autenticazione/archiviazione, motore di traduzione testo e voce, trasmissione audio/video, email di servizio. Paddle agisce come titolare autonomo (Merchant of Record) per vendita crediti, pagamenti, fatture e IVA, secondo la propria informativa. L'elenco aggiornato dei fornitori è disponibile su richiesta. I dati possono essere comunicati alle autorità solo se previsto dalla legge.</p>
-        <p><b>Twilio Video.</b> Per collegare i partecipanti nelle stanze private, Twilio tratta i flussi audio/video e i dati tecnici necessari alla comunicazione, come indirizzo IP, informazioni sul dispositivo, identificativi della stanza e dei partecipanti e dati di qualità della connessione. L'accesso alla stanza è riservato ai membri autorizzati. L'integrazione Twilio non costituisce, di per sé, un servizio pubblicitario. Ulteriori informazioni: <a className="underline" href="https://www.twilio.com/en-us/legal/privacy" target="_blank" rel="noopener noreferrer">informativa privacy Twilio</a>.</p>
-      </S>
-
-      <S t="6. Trasferimenti fuori dall'UE">
-        <p>Alcuni dati possono essere trattati fuori dallo SEE, in particolare negli Stati Uniti. Ogni trasferimento è protetto da decisione di adeguatezza (incluso l'EU-US Data Privacy Framework) o da clausole contrattuali standard (art. 46) con misure aggiuntive. Copia delle garanzie su richiesta a privacy@traduchat.com.</p>
-      </S>
-
-      <S t="7. Conservazione">
-        <Table head={["Dati", "Durata"]} rows={[
-          ["Account e profilo", "fino alla chiusura dell'account; cancellazione entro 30 giorni"],
-          ["Messaggi di testo", "fino alla cancellazione o alla chiusura dell'account"],
-          ["Audio e video delle chiamate", "non conservati (solo tempo reale)"],
-          ["Log tecnici e di sicurezza", "90 giorni"],
-          ["Dati di acquisto e fatturazione", "10 anni, per obblighi fiscali"],
-          ["Richieste di assistenza", "24 mesi dalla chiusura"],
-        ]} />
-        <p>Scaduti i termini, i dati vengono cancellati o resi anonimi in modo irreversibile.</p>
-      </S>
-
-      <S t="8. Cookie e tecnologie simili">
-        <p><b>Cookie tecnici.</b> Cookie e archiviazione locale necessari all'accesso, alla sicurezza, alle preferenze di lingua e ai servizi richiesti non richiedono il consenso. I servizi audio/video Twilio possono utilizzare tecnologie necessarie alla connessione e alla gestione della sessione; non devono essere confusi con cookie pubblicitari.</p>
-        <p><b>Cookie pubblicitari.</b> Se attivati, possono essere utilizzati per personalizzare gli annunci, misurare le campagne e riconoscere un dispositivo tramite identificatori online. Non sono necessari al funzionamento di chat e chiamate e possono essere attivati soltanto dopo un consenso libero, specifico e informato, ai sensi dell'art. 6, par. 1, lett. a GDPR e dell'art. 122 del Codice Privacy.</p>
-        <p><b>Le tue preferenze.</b> Puoi modificare o revocare in qualsiasi momento il consenso ai cookie dal link «Cookie» in fondo a ogni schermata oppure qui: <CookieSettingsLink className="font-semibold text-primary underline" />.</p>
-        <p><b>Scelta e revoca.</b> Al primo accesso il sito mostra un pannello che consente di accettare, rifiutare o scegliere le categorie (analisi e pubblicità) con pari facilità, senza opzioni preselezionate. Chiudere o ignorare il pannello non attiva alcun cookie facoltativo, e il consenso può essere modificato o revocato in qualsiasi momento dal link «Cookie». Il rifiuto non deve impedire l'utilizzo delle funzioni essenziali. Si applicano le Linee guida cookie del Garante del 10 giugno 2021.</p>
-        <p><b>Elenco dei cookie.</b> Prima dell'attivazione, il pannello deve indicare per ogni cookie o tecnologia il fornitore, la finalità, la durata e gli eventuali trasferimenti di dati. Nessun cookie pubblicitario viene usato senza il tuo consenso. Se il browser invia il segnale Global Privacy Control, viene trattato come un rifiuto.</p>
-      </S>
-
-      <S t="9. I tuoi diritti">
-        <p>Ai sensi degli artt. 15-22 GDPR puoi chiedere: accesso e copia, rettifica, cancellazione dei dati e dell'account, limitazione, portabilità, opposizione ai trattamenti basati sul legittimo interesse, revoca del consenso. Scrivi a <a className="underline" href="mailto:privacy@traduchat.com">privacy@traduchat.com</a>: rispondiamo entro un mese (prorogabile di due nei casi complessi). Puoi proporre reclamo al Garante (www.garanteprivacy.it).</p>
-      </S>
-
-      <S t="10. Altre informazioni">
-        <p><b>Minori.</b> Il servizio è riservato a chi ha almeno 14 anni. Account di persone più giovani vengono cancellati.</p>
-        <p><b>Sicurezza.</b> Connessione HTTPS, password cifrate, accessi limitati al personale autorizzato. In caso di violazione informeremo l'autorità e, se necessario, gli utenti (artt. 33-34).</p>
-        <p><b>Modifiche.</b> Le modifiche importanti saranno comunicate nell'app o via email.</p>
-        <p><b>Contatti.</b> Umbertodecicco Association (TRADUCHAT) · EIN 37-2222305 · Via Annunziata 30, 80139 Napoli · privacy@traduchat.com</p>
-      </S>
-    </main>
   );
 }

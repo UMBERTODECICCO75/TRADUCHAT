@@ -10,15 +10,61 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CommunityJoinRouteImport } from './routes/community-join'
+import { Route as CookieRouteImport } from './routes/cookie'
+import { Route as PrezziRouteImport } from './routes/prezzi'
 import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as RegistratiRouteImport } from './routes/registrati'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as RimborsiRouteImport } from './routes/rimborsi'
+import { Route as TerminiRouteImport } from './routes/termini'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedCommunityRouteImport } from './routes/_authenticated/community'
+import { Route as AuthenticatedEmailRouteImport } from './routes/_authenticated/email'
+import { Route as AuthenticatedGruppiRouteImport } from './routes/_authenticated/gruppi'
+import { Route as AuthenticatedImpostazioniRouteImport } from './routes/_authenticated/impostazioni'
+import { Route as AuthenticatedProfiloRouteImport } from './routes/_authenticated/profilo'
+import { Route as AuthenticatedRicaricheRouteImport } from './routes/_authenticated/ricariche'
+import { Route as AuthenticatedStoricoRouteImport } from './routes/_authenticated/storico'
+import { Route as AuthenticatedTraduzioniRouteImport } from './routes/_authenticated/traduzioni'
+import { Route as ConnettiUserIdRouteImport } from './routes/connetti.$userId'
+import { Route as InvitoCodeRouteImport } from './routes/invito.$code'
+import { Route as AuthenticatedStanzaCodeRouteImport } from './routes/_authenticated/stanza.$code'
+import { Route as ApiPublicHooksAgendaRemindersRouteImport } from './routes/api/public/hooks/agenda-reminders'
+import { Route as ApiPublicJobsAgendaCallsRouteImport } from './routes/api/public/jobs/agenda-calls'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityJoinRoute = CommunityJoinRouteImport.update({
+  id: '/community-join',
+  path: '/community-join',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookieRoute = CookieRouteImport.update({
+  id: '/cookie',
+  path: '/cookie',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrezziRoute = PrezziRouteImport.update({
+  id: '/prezzi',
+  path: '/prezzi',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -26,16 +72,100 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RegistratiRoute = RegistratiRouteImport.update({
-  id: '/registrati',
-  path: '/registrati',
+const RimborsiRoute = RimborsiRouteImport.update({
+  id: '/rimborsi',
+  path: '/rimborsi',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
+const TerminiRoute = TerminiRouteImport.update({
+  id: '/termini',
+  path: '/termini',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCommunityRoute = AuthenticatedCommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEmailRoute = AuthenticatedEmailRouteImport.update({
+  id: '/email',
+  path: '/email',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGruppiRoute = AuthenticatedGruppiRouteImport.update({
+  id: '/gruppi',
+  path: '/gruppi',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedImpostazioniRoute =
+  AuthenticatedImpostazioniRouteImport.update({
+    id: '/impostazioni',
+    path: '/impostazioni',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProfiloRoute = AuthenticatedProfiloRouteImport.update({
+  id: '/profilo',
+  path: '/profilo',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRicaricheRoute = AuthenticatedRicaricheRouteImport.update({
+  id: '/ricariche',
+  path: '/ricariche',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedStoricoRoute = AuthenticatedStoricoRouteImport.update({
+  id: '/storico',
+  path: '/storico',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTraduzioniRoute = AuthenticatedTraduzioniRouteImport.update({
+  id: '/traduzioni',
+  path: '/traduzioni',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ConnettiUserIdRoute = ConnettiUserIdRouteImport.update({
+  id: '/connetti/$userId',
+  path: '/connetti/$userId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvitoCodeRoute = InvitoCodeRouteImport.update({
+  id: '/invito/$code',
+  path: '/invito/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedStanzaCodeRoute = AuthenticatedStanzaCodeRouteImport.update({
+  id: '/stanza/$code',
+  path: '/stanza/$code',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ApiPublicHooksAgendaRemindersRoute =
+  ApiPublicHooksAgendaRemindersRouteImport.update({
+    id: '/api/public/hooks/agenda-reminders',
+    path: '/api/public/hooks/agenda-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicJobsAgendaCallsRoute =
+  ApiPublicJobsAgendaCallsRouteImport.update({
+    id: '/api/public/jobs/agenda-calls',
+    path: '/api/public/jobs/agenda-calls',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   id: '/lovable/email/auth/preview',
   path: '/lovable/email/auth/preview',
@@ -46,66 +176,211 @@ const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
   path: '/lovable/email/auth/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/community-join': typeof CommunityJoinRoute
+  '/cookie': typeof CookieRoute
+  '/prezzi': typeof PrezziRoute
   '/privacy': typeof PrivacyRoute
-  '/registrati': typeof RegistratiRoute
-  '/reset-password': typeof ResetPasswordRoute
+  '/rimborsi': typeof RimborsiRoute
+  '/termini': typeof TerminiRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/app': typeof AuthenticatedAppRoute
+  '/community': typeof AuthenticatedCommunityRoute
+  '/email': typeof AuthenticatedEmailRoute
+  '/gruppi': typeof AuthenticatedGruppiRoute
+  '/impostazioni': typeof AuthenticatedImpostazioniRoute
+  '/profilo': typeof AuthenticatedProfiloRoute
+  '/ricariche': typeof AuthenticatedRicaricheRoute
+  '/storico': typeof AuthenticatedStoricoRoute
+  '/traduzioni': typeof AuthenticatedTraduzioniRoute
+  '/connetti/$userId': typeof ConnettiUserIdRoute
+  '/invito/$code': typeof InvitoCodeRoute
+  '/stanza/$code': typeof AuthenticatedStanzaCodeRoute
+  '/api/public/hooks/agenda-reminders': typeof ApiPublicHooksAgendaRemindersRoute
+  '/api/public/jobs/agenda-calls': typeof ApiPublicJobsAgendaCallsRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/community-join': typeof CommunityJoinRoute
+  '/cookie': typeof CookieRoute
+  '/prezzi': typeof PrezziRoute
   '/privacy': typeof PrivacyRoute
-  '/registrati': typeof RegistratiRoute
-  '/reset-password': typeof ResetPasswordRoute
+  '/rimborsi': typeof RimborsiRoute
+  '/termini': typeof TerminiRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/app': typeof AuthenticatedAppRoute
+  '/community': typeof AuthenticatedCommunityRoute
+  '/email': typeof AuthenticatedEmailRoute
+  '/gruppi': typeof AuthenticatedGruppiRoute
+  '/impostazioni': typeof AuthenticatedImpostazioniRoute
+  '/profilo': typeof AuthenticatedProfiloRoute
+  '/ricariche': typeof AuthenticatedRicaricheRoute
+  '/storico': typeof AuthenticatedStoricoRoute
+  '/traduzioni': typeof AuthenticatedTraduzioniRoute
+  '/connetti/$userId': typeof ConnettiUserIdRoute
+  '/invito/$code': typeof InvitoCodeRoute
+  '/stanza/$code': typeof AuthenticatedStanzaCodeRoute
+  '/api/public/hooks/agenda-reminders': typeof ApiPublicHooksAgendaRemindersRoute
+  '/api/public/jobs/agenda-calls': typeof ApiPublicJobsAgendaCallsRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/community-join': typeof CommunityJoinRoute
+  '/cookie': typeof CookieRoute
+  '/prezzi': typeof PrezziRoute
   '/privacy': typeof PrivacyRoute
-  '/registrati': typeof RegistratiRoute
-  '/reset-password': typeof ResetPasswordRoute
+  '/rimborsi': typeof RimborsiRoute
+  '/termini': typeof TerminiRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/app': typeof AuthenticatedAppRoute
+  '/_authenticated/community': typeof AuthenticatedCommunityRoute
+  '/_authenticated/email': typeof AuthenticatedEmailRoute
+  '/_authenticated/gruppi': typeof AuthenticatedGruppiRoute
+  '/_authenticated/impostazioni': typeof AuthenticatedImpostazioniRoute
+  '/_authenticated/profilo': typeof AuthenticatedProfiloRoute
+  '/_authenticated/ricariche': typeof AuthenticatedRicaricheRoute
+  '/_authenticated/storico': typeof AuthenticatedStoricoRoute
+  '/_authenticated/traduzioni': typeof AuthenticatedTraduzioniRoute
+  '/connetti/$userId': typeof ConnettiUserIdRoute
+  '/invito/$code': typeof InvitoCodeRoute
+  '/_authenticated/stanza/$code': typeof AuthenticatedStanzaCodeRoute
+  '/api/public/hooks/agenda-reminders': typeof ApiPublicHooksAgendaRemindersRoute
+  '/api/public/jobs/agenda-calls': typeof ApiPublicJobsAgendaCallsRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
+    | '/community-join'
+    | '/cookie'
+    | '/prezzi'
     | '/privacy'
-    | '/registrati'
-    | '/reset-password'
+    | '/rimborsi'
+    | '/termini'
+    | '/admin'
+    | '/app'
+    | '/community'
+    | '/email'
+    | '/gruppi'
+    | '/impostazioni'
+    | '/profilo'
+    | '/ricariche'
+    | '/storico'
+    | '/traduzioni'
+    | '/connetti/$userId'
+    | '/invito/$code'
+    | '/stanza/$code'
+    | '/api/public/hooks/agenda-reminders'
+    | '/api/public/jobs/agenda-calls'
+    | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
+    | '/community-join'
+    | '/cookie'
+    | '/prezzi'
     | '/privacy'
-    | '/registrati'
-    | '/reset-password'
+    | '/rimborsi'
+    | '/termini'
+    | '/admin'
+    | '/app'
+    | '/community'
+    | '/email'
+    | '/gruppi'
+    | '/impostazioni'
+    | '/profilo'
+    | '/ricariche'
+    | '/storico'
+    | '/traduzioni'
+    | '/connetti/$userId'
+    | '/invito/$code'
+    | '/stanza/$code'
+    | '/api/public/hooks/agenda-reminders'
+    | '/api/public/jobs/agenda-calls'
+    | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/lovable/email/transactional/preview'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/community-join'
+    | '/cookie'
+    | '/prezzi'
     | '/privacy'
-    | '/registrati'
-    | '/reset-password'
+    | '/rimborsi'
+    | '/termini'
+    | '/_authenticated/admin'
+    | '/_authenticated/app'
+    | '/_authenticated/community'
+    | '/_authenticated/email'
+    | '/_authenticated/gruppi'
+    | '/_authenticated/impostazioni'
+    | '/_authenticated/profilo'
+    | '/_authenticated/ricariche'
+    | '/_authenticated/storico'
+    | '/_authenticated/traduzioni'
+    | '/connetti/$userId'
+    | '/invito/$code'
+    | '/_authenticated/stanza/$code'
+    | '/api/public/hooks/agenda-reminders'
+    | '/api/public/jobs/agenda-calls'
+    | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  CommunityJoinRoute: typeof CommunityJoinRoute
+  CookieRoute: typeof CookieRoute
+  PrezziRoute: typeof PrezziRoute
   PrivacyRoute: typeof PrivacyRoute
-  RegistratiRoute: typeof RegistratiRoute
-  ResetPasswordRoute: typeof ResetPasswordRoute
+  RimborsiRoute: typeof RimborsiRoute
+  TerminiRoute: typeof TerminiRoute
+  ConnettiUserIdRoute: typeof ConnettiUserIdRoute
+  InvitoCodeRoute: typeof InvitoCodeRoute
+  ApiPublicHooksAgendaRemindersRoute: typeof ApiPublicHooksAgendaRemindersRoute
+  ApiPublicJobsAgendaCallsRoute: typeof ApiPublicJobsAgendaCallsRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -117,6 +392,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community-join': {
+      id: '/community-join'
+      path: '/community-join'
+      fullPath: '/community-join'
+      preLoaderRoute: typeof CommunityJoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookie': {
+      id: '/cookie'
+      path: '/cookie'
+      fullPath: '/cookie'
+      preLoaderRoute: typeof CookieRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prezzi': {
+      id: '/prezzi'
+      path: '/prezzi'
+      fullPath: '/prezzi'
+      preLoaderRoute: typeof PrezziRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -124,18 +434,130 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/registrati': {
-      id: '/registrati'
-      path: '/registrati'
-      fullPath: '/registrati'
-      preLoaderRoute: typeof RegistratiRouteImport
+    '/rimborsi': {
+      id: '/rimborsi'
+      path: '/rimborsi'
+      fullPath: '/rimborsi'
+      preLoaderRoute: typeof RimborsiRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
+    '/termini': {
+      id: '/termini'
+      path: '/termini'
+      fullPath: '/termini'
+      preLoaderRoute: typeof TerminiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app': {
+      id: '/_authenticated/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AuthenticatedAppRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/community': {
+      id: '/_authenticated/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof AuthenticatedCommunityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/email': {
+      id: '/_authenticated/email'
+      path: '/email'
+      fullPath: '/email'
+      preLoaderRoute: typeof AuthenticatedEmailRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/gruppi': {
+      id: '/_authenticated/gruppi'
+      path: '/gruppi'
+      fullPath: '/gruppi'
+      preLoaderRoute: typeof AuthenticatedGruppiRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/impostazioni': {
+      id: '/_authenticated/impostazioni'
+      path: '/impostazioni'
+      fullPath: '/impostazioni'
+      preLoaderRoute: typeof AuthenticatedImpostazioniRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/profilo': {
+      id: '/_authenticated/profilo'
+      path: '/profilo'
+      fullPath: '/profilo'
+      preLoaderRoute: typeof AuthenticatedProfiloRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ricariche': {
+      id: '/_authenticated/ricariche'
+      path: '/ricariche'
+      fullPath: '/ricariche'
+      preLoaderRoute: typeof AuthenticatedRicaricheRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/storico': {
+      id: '/_authenticated/storico'
+      path: '/storico'
+      fullPath: '/storico'
+      preLoaderRoute: typeof AuthenticatedStoricoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/traduzioni': {
+      id: '/_authenticated/traduzioni'
+      path: '/traduzioni'
+      fullPath: '/traduzioni'
+      preLoaderRoute: typeof AuthenticatedTraduzioniRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/connetti/$userId': {
+      id: '/connetti/$userId'
+      path: '/connetti/$userId'
+      fullPath: '/connetti/$userId'
+      preLoaderRoute: typeof ConnettiUserIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invito/$code': {
+      id: '/invito/$code'
+      path: '/invito/$code'
+      fullPath: '/invito/$code'
+      preLoaderRoute: typeof InvitoCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/stanza/$code': {
+      id: '/_authenticated/stanza/$code'
+      path: '/stanza/$code'
+      fullPath: '/stanza/$code'
+      preLoaderRoute: typeof AuthenticatedStanzaCodeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/hooks/agenda-reminders': {
+      id: '/api/public/hooks/agenda-reminders'
+      path: '/api/public/hooks/agenda-reminders'
+      fullPath: '/api/public/hooks/agenda-reminders'
+      preLoaderRoute: typeof ApiPublicHooksAgendaRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/jobs/agenda-calls': {
+      id: '/api/public/jobs/agenda-calls'
+      path: '/api/public/jobs/agenda-calls'
+      fullPath: '/api/public/jobs/agenda-calls'
+      preLoaderRoute: typeof ApiPublicJobsAgendaCallsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/auth/preview': {
@@ -152,16 +574,65 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAppRoute: typeof AuthenticatedAppRoute
+  AuthenticatedCommunityRoute: typeof AuthenticatedCommunityRoute
+  AuthenticatedEmailRoute: typeof AuthenticatedEmailRoute
+  AuthenticatedGruppiRoute: typeof AuthenticatedGruppiRoute
+  AuthenticatedImpostazioniRoute: typeof AuthenticatedImpostazioniRoute
+  AuthenticatedProfiloRoute: typeof AuthenticatedProfiloRoute
+  AuthenticatedRicaricheRoute: typeof AuthenticatedRicaricheRoute
+  AuthenticatedStoricoRoute: typeof AuthenticatedStoricoRoute
+  AuthenticatedTraduzioniRoute: typeof AuthenticatedTraduzioniRoute
+  AuthenticatedStanzaCodeRoute: typeof AuthenticatedStanzaCodeRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAppRoute: AuthenticatedAppRoute,
+  AuthenticatedCommunityRoute: AuthenticatedCommunityRoute,
+  AuthenticatedEmailRoute: AuthenticatedEmailRoute,
+  AuthenticatedGruppiRoute: AuthenticatedGruppiRoute,
+  AuthenticatedImpostazioniRoute: AuthenticatedImpostazioniRoute,
+  AuthenticatedProfiloRoute: AuthenticatedProfiloRoute,
+  AuthenticatedRicaricheRoute: AuthenticatedRicaricheRoute,
+  AuthenticatedStoricoRoute: AuthenticatedStoricoRoute,
+  AuthenticatedTraduzioniRoute: AuthenticatedTraduzioniRoute,
+  AuthenticatedStanzaCodeRoute: AuthenticatedStanzaCodeRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  CommunityJoinRoute: CommunityJoinRoute,
+  CookieRoute: CookieRoute,
+  PrezziRoute: PrezziRoute,
   PrivacyRoute: PrivacyRoute,
-  RegistratiRoute: RegistratiRoute,
-  ResetPasswordRoute: ResetPasswordRoute,
+  RimborsiRoute: RimborsiRoute,
+  TerminiRoute: TerminiRoute,
+  ConnettiUserIdRoute: ConnettiUserIdRoute,
+  InvitoCodeRoute: InvitoCodeRoute,
+  ApiPublicHooksAgendaRemindersRoute: ApiPublicHooksAgendaRemindersRoute,
+  ApiPublicJobsAgendaCallsRoute: ApiPublicJobsAgendaCallsRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

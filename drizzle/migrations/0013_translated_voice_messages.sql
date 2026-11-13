@@ -1,5 +1,0 @@
-ALTER TABLE public.chat_messages ADD COLUMN audio_path text;
-CREATE POLICY "upload own voice" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'chat-audio' AND (storage.foldername(name))[1] = auth.uid()::text);
-CREATE POLICY "read participant voice" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'chat-audio' AND ((storage.foldername(name))[1] = auth.uid()::text OR EXISTS (SELECT 1 FROM public.chat_messages m WHERE m.audio_path = name AND (m.sender_id = auth.uid() OR m.recipient_id = auth.uid()))));
-CREATE POLICY "delete own voice" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'chat-audio' AND (storage.foldername(name))[1] = auth.uid()::text);
-ALTER TABLE public.chat_messages ADD CONSTRAINT voice_path_owned CHECK (audio_path IS NULL OR audio_path LIKE sender_id::text || '/%');

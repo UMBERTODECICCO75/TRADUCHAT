@@ -1,0 +1,1 @@
+ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS photo_path text, ADD COLUMN IF NOT EXISTS theme text, ADD COLUMN IF NOT EXISTS topic text;

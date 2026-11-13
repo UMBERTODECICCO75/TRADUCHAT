@@ -14,30 +14,33 @@ import {
 interface RecoveryEmailProps {
   siteName: string
   confirmationUrl: string
+  token?: string
 }
 
 export const RecoveryEmail = ({
   siteName,
   confirmationUrl,
+  token,
 }: RecoveryEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="it" dir="ltr">
     <Head>
       <style>{darkModeCss}</style>
     </Head>
-    <Preview>Reset your password for {siteName}</Preview>
+    <Preview>Reimposta la password di {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Reset your password</Heading>
+        <Heading style={h1}>Reimposta la password</Heading>
         <Text style={text}>
-          We received a request to reset your password for {siteName}. Click
-          the button below to choose a new password.
+          Abbiamo ricevuto una richiesta per reimpostare la password di {siteName}.
+          Inserisci questo codice nell'app per scegliere una nuova password.
         </Text>
+        {token && <Text style={codeStyle}>{token}</Text>}
         <Button className="dm-btn" style={button} href={confirmationUrl}>
-          Reset Password
+          Apri TraduChat
         </Button>
         <Text style={footer}>
-          If you didn't request a password reset, you can safely ignore this
-          email. Your password will not be changed.
+          Se non hai richiesto tu il cambio password, ignora questa email: la
+          password resterà invariata.
         </Text>
       </Container>
     </Body>
@@ -61,14 +64,15 @@ const text = {
   margin: '0 0 25px',
 }
 const button = {
-  backgroundColor: '#7c3aed',
+  backgroundColor: '#000000',
   color: '#ffffff',
   fontSize: '14px',
-  border: '1px solid #7c3aed',
+  border: '1px solid #000000',
   borderRadius: '8px',
   padding: '12px 20px',
   textDecoration: 'none',
 }
+const codeStyle = { fontFamily: 'Courier, monospace', fontSize: '28px', fontWeight: 'bold' as const, letterSpacing: '4px', color: '#000000', margin: '0 0 25px' }
 const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
 // Rendered as a text child, which React may HTML-escape: keep this CSS free of >, &, and quotes.
 const darkModeCss = `
