@@ -1,15 +1,21 @@
 #!/usr/bin/env bash
 # TRADUCHAT - installa o aggiorna l'app (con sottotitoli tradotti) sul VPS Keliweb.
-# Uso:  sudo bash setup-app.sh workoftraduchat.com tua@email.it
+# Uso:  sudo bash setup-app.sh workoftraduchat.it tua@email.it
 # Rilancialo uguale per aggiornare l'app all'ultima versione di main.
 set -euo pipefail
 
-DOMAIN="${1:-workoftraduchat.com}"
+DOMAIN="${1:-workoftraduchat.it}"
 EMAIL="${2:-}"
 REPO="https://github.com/UMBERTODECICCO75/traduchat.git"
 APP_DIR=/opt/traduchat-app
 ENV_FILE=/etc/traduchat/app.env
 PORT=3100
+
+# Solo un dominio principale (es. workoftraduchat.it) riceve anche www;
+# un sottodominio (es. app.workoftraduchat.it) resta da solo.
+DOTS="${DOMAIN//[^.]/}"
+if [ "${#DOTS}" -eq 1 ]; then NAMES="$DOMAIN www.$DOMAIN"; CERT_ARGS=(-d "$DOMAIN" -d "www.$DOMAIN")
+else NAMES="$DOMAIN"; CERT_ARGS=(-d "$DOMAIN"); fi
 
 [ "$(id -u)" -eq 0 ] || { echo "Esegui con sudo"; exit 1; }
 [ -n "$EMAIL" ] || { echo "Uso: sudo bash setup-app.sh $DOMAIN tua@email.it"; exit 1; }
@@ -81,11 +87,16 @@ sleep 3
 curl -fsS -o /dev/null "http://127.0.0.1:$PORT/" && echo "    App avviata." || { echo "    L'app non risponde: guarda pm2 logs traduchat-app"; exit 1; }
 
 echo "==> 6/6 nginx + HTTPS per $DOMAIN"
+VPS_IP=$(curl -s https://api.ipify.org || true)
+for name in $NAMES; do
+  ip=$(getent hosts "$name" | awk '{print $1}' | head -1 || true)
+  [ "$ip" = "$VPS_IP" ] && echo "    DNS ok: $name -> $ip" || echo "    ATTENZIONE: $name punta a ${ip:-nessun IP}, non a questo VPS ($VPS_IP)"
+done
 command -v nginx >/dev/null || apt-get install -y nginx
 cat > /etc/nginx/sites-available/traduchat-app <<NGINX
 server {
   listen 80;
-  server_name $DOMAIN www.$DOMAIN;
+  server_name $NAMES;
   client_max_body_size 25m;
   location / {
     proxy_pass http://127.0.0.1:$PORT;
@@ -101,8 +112,8 @@ NGINX
 ln -sf /etc/nginx/sites-available/traduchat-app /etc/nginx/sites-enabled/traduchat-app
 nginx -t && systemctl reload nginx
 command -v certbot >/dev/null || apt-get install -y certbot python3-certbot-nginx
-certbot --nginx -d "$DOMAIN" -d "www.$DOMAIN" --non-interactive --agree-tos -m "$EMAIL" --redirect || \
-  echo "    HTTPS non attivato: controlla che i record A di $DOMAIN e www puntino a questo VPS, poi: certbot --nginx -d $DOMAIN -d www.$DOMAIN"
+certbot --nginx "${CERT_ARGS[@]}" --non-interactive --agree-tos -m "$EMAIL" --redirect || \
+  echo "    HTTPS non attivato: controlla che i record A di $NAMES puntino a questo VPS, poi rilancia lo script"
 
 echo
 echo "Fatto: https://$DOMAIN"
