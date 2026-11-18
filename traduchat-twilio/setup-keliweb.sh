@@ -32,7 +32,7 @@ command -v pm2 >/dev/null || npm i -g pm2
 
 echo "==> 3/6 Copia dei file in $APP_DIR"
 mkdir -p "$APP_DIR"
-cp -r "$SRC_DIR"/server.js "$SRC_DIR"/package.json "$SRC_DIR"/public "$SRC_DIR"/.env.example "$APP_DIR"/
+cp -r "$SRC_DIR"/server.js "$SRC_DIR"/app.js "$SRC_DIR"/setup.js "$SRC_DIR"/package.json "$SRC_DIR"/public "$SRC_DIR"/.env.example "$APP_DIR"/
 cd "$APP_DIR"
 npm install --omit=dev --no-audit --no-fund
 
@@ -41,10 +41,7 @@ if [ ! -f .env ]; then
   sed -i "s|^PUBLIC_HOST=.*|PUBLIC_HOST=$DOMAIN|" .env
   sed -i "s|^DEMO_SECRET=.*|DEMO_SECRET=$(openssl rand -hex 12)|" .env
   chmod 600 .env
-  echo
-  echo "    Ho creato $APP_DIR/.env: ora inserisci le chiavi Twilio e DeepL."
-  read -r -p "    Premi Invio per aprire l'editor..." _
-  ${EDITOR:-nano} .env
+  echo "    Creato $APP_DIR/.env: le chiavi Twilio e DeepL si inseriscono dall'interfaccia web alla fine."
 fi
 
 echo "==> 4/6 Avvio con pm2"
@@ -80,6 +77,19 @@ command -v certbot >/dev/null || apt-get install -y certbot python3-certbot-ngin
 certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m "$EMAIL" --redirect || \
   echo "    Certbot non riuscito: controlla che il DNS punti al VPS e rilancia: certbot --nginx -d $DOMAIN"
 
+echo
+sleep 3
+if [ -f "$APP_DIR/.setup-code" ]; then
+  echo "=================================================================="
+  echo " Ultimo passo: apri questo link dal telefono o dal computer e"
+  echo " inserisci le chiavi Twilio e DeepL (vengono verificate e salvate):"
+  echo
+  echo "   https://$DOMAIN/setup?code=$(cat "$APP_DIR/.setup-code")"
+  echo
+  echo " Il link funziona una sola volta: dopo il salvataggio si disattiva."
+  echo " Per cambiare le chiavi in futuro: sudo touch $APP_DIR/.force-setup && sudo pm2 restart traduchat-call && cat $APP_DIR/.setup-code"
+  echo "=================================================================="
+fi
 echo
 echo "Fatto. Controlli:"
 echo "  curl https://$DOMAIN/health"

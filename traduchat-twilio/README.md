@@ -14,7 +14,9 @@ Con questa demo un utente dell'app chiama un altro utente registrato. Ciascuno p
 
 | File | A cosa serve |
 |---|---|
-| `server.js` | Server Node.js: token, webhook Twilio, traduzione, sottotitoli |
+| `server.js` | Avvio: interfaccia di configurazione se mancano le chiavi, altrimenti il server |
+| `app.js` | Server chiamate: token, webhook Twilio, traduzione, sottotitoli |
+| `setup.js` | Interfaccia web per inserire e verificare le chiavi |
 | `public/index.html` | Pagina di test: aprila su due telefoni e fate una chiamata |
 | `lovable/TraduCall.tsx` | Componente React da incollare nel progetto Lovable di traduchatchat.com |
 | `.env.example` | Le chiavi da compilare |
@@ -38,18 +40,25 @@ Crea un account **DeepL API Free** e copia la chiave (finisce con `:fx`) in `DEE
 ## 3. Installazione sul VPS Keliweb
 
 ```bash
-# Node 18 o superiore
-cd /opt && git clone <repo> traduchat-twilio   # oppure carica la cartella via SFTP
-cd traduchat-twilio
-cp .env.example .env && nano .env              # compila le chiavi
-npm install
-npm start                                      # prova: deve dire "TraduChat call server su porta 3000"
+git clone https://github.com/UMBERTODECICCO75/WORKOFTRADUCHAT- /opt/work-of-traduchat
+cd /opt/work-of-traduchat/traduchat-twilio
+sudo bash setup-keliweb.sh call.workoftraduchat.it tua@email.it
 ```
+Lo script installa tutto e alla fine mostra un **link di configurazione** del tipo
+`https://call.workoftraduchat.it/setup?code=…`.
 
-Per tenerlo sempre acceso:
+### Interfaccia di configurazione
+
+Apri il link, anche dal telefono, e compila i campi: Account SID, Auth Token, API Key, API Secret, TwiML App SID e chiave DeepL. Premendo **Verifica e salva** il server:
+- controlla il formato di ogni campo;
+- prova davvero le chiavi su Twilio e DeepL, verifica che la Voice URL della TwiML App sia giusta e mostra i caratteri DeepL usati nel mese;
+- salva tutto nel file `.env` protetto e si riavvia con le chiavi.
+
+Il link funziona una sola volta: dopo il salvataggio la pagina si disattiva. Finché non è completata, il server non accetta chiamate. Per cambiare le chiavi più avanti:
 ```bash
-npm i -g pm2 && pm2 start server.js --name traduchat-call && pm2 save && pm2 startup
+sudo touch /opt/traduchat-twilio/.force-setup && sudo pm2 restart traduchat-call && cat /opt/traduchat-twilio/.setup-code
 ```
+Poi apri `https://call.workoftraduchat.it/setup?code=<codice mostrato>`; i segreti già salvati restano se lasci vuoto il campo.
 
 ## 4. Sottodominio e nginx
 
