@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TRADUCHAT — Test chiamate Twilio</title>
+<script src="https://unpkg.com/@twilio/voice-sdk@2/dist/twilio.min.js"></script>
+<style>
+:root{--bg:#0b1020;--card:#141a30;--line:#232b4a;--txt:#eef1fb;--mut:#9aa3c7;--a:#5b8cff;--b:#22d3a6;--r:#ff5b6e}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--txt)}
+.wrap{max-width:560px;margin:0 auto;padding:20px}
+h1{font-size:22px;margin:6px 0 2px}h1 span{color:var(--b)}p.m{color:var(--mut);margin:0 0 16px;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--mut);margin:8px 0 4px}
+input,select{width:100%;font:inherit;padding:10px;border-radius:10px;border:1px solid var(--line);background:#0e1428;color:var(--txt)}
+button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:11px 16px;cursor:pointer;color:#fff;background:var(--a);margin-top:10px}
+button.g{background:var(--b);color:#062}button.r{background:var(--r)}button:disabled{opacity:.4}
+.row{display:flex;gap:8px}.row>*{flex:1}
+#st{font-size:14px;color:var(--b)}
+#users button{background:#1c2650;margin:4px 6px 0 0;padding:8px 12px;font-weight:500}
+#subs{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow:auto}
+.l{background:#18213d;border-radius:12px;padding:8px 10px;font-size:15px}.l.me{background:#22305e}
+.l small{display:block;color:var(--mut);font-size:12px;margin-top:3px}
+#inc{display:none;border-color:var(--b)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>TRADU<span>CHAT</span> · test chiamate</h1>
+  <p class="m">Apri questa pagina su due dispositivi, entra con due nomi diversi e chiamatevi.</p>
+
+  <div class="card" id="login">
+    <label>Il tuo nome utente</label><input id="me" placeholder="es. umberto">
+    <label>La tua lingua</label>
+    <select id="lang">
+      <option value="it-IT">🇮🇹 Italiano</option><option value="en-US">🇬🇧 English</option>
+      <option value="es-ES">🇪🇸 Español</option><option value="fr-FR">🇫🇷 Français</option>
+      <option value="de-DE">🇩🇪 Deutsch</option><option value="pt-BR">🇧🇷 Português</option>
+    </select>
+    <label>Chiave demo</label><input id="secret" type="password" placeholder="DEMO_SECRET del server">
+    <button id="enter">Entra</button>
+  </div>
+
+  <div class="card" id="inc">
+    <b>📞 Chiamata in arrivo da <span id="incFrom"></span></b>
+    <div class="row"><button class="g" id="acc">Rispondi</button><button class="r" id="rej">Rifiuta</button></div>
+  </div>
+
+  <div class="card">
+    <div id="st">Non collegato</div>
+    <label>Utenti online</label><div id="users"><small style="color:var(--mut)">—</small></div>
+    <label>Chiama un utente</label>
+    <div class="row"><input id="to" placeholder="nome utente"><button id="call" disabled style="flex:0 0 auto;margin-top:0">Chiama</button></div>
+    <button class="r" id="hang" disabled>Riaggancia</button>
+  </div>
+
+  <div class="card"><label style="margin-top:0">Sottotitoli tradotti</label><div id="subs"></div></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let device=null,call=null,pending=null,me="",secret="";
+const st=t=>$("st").textContent=t;
+
+$("enter").onclick=async()=>{
+  me=$("me").value.trim();secret=$("secret").value;
+  try{
+    const r=await fetch("/token",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identity:me,lang:$("lang").value,secret})});
+    const j=await r.json(); if(!r.ok) return st("Errore: "+j.error);
+    device=new Twilio.Device(j.token,{codecPreferences:["opus","pcmu"],closeProtection:true});
+    device.on("registered",()=>{st("✅ Collegato come "+me+" ("+j.lang+")");$("call").disabled=false});
+    device.on("error",e=>st("Errore: "+e.message));
+    device.on("incoming",c=>{pending=c;$("incFrom").textContent=(c.parameters.From||"").replace("client:","");$("inc").style.display="block";
+      c.on("cancel",()=>{$("inc").style.display="none";pending=null});});
+    device.on("tokenWillExpire",async()=>{const r=await fetch("/token",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identity:me,lang:$("lang").value,secret})});device.updateToken((await r.json()).token)});
+    await device.register();
+    $("login").style.display="none";
+    listen();loadUsers();setInterval(loadUsers,10000);
+  }catch(e){st("Errore: "+e.message)}
+};
+
+function bind(c){call=c;$("hang").disabled=false;$("call").disabled=true;
+  c.on("accept",()=>st("🟢 In chiamata — parla nella tua lingua"));
+  c.on("disconnect",()=>{st("Chiamata terminata");call=null;$("hang").disabled=true;$("call").disabled=false});
+  c.on("error",e=>st("Errore: "+e.message));}
+
+$("call").onclick=async()=>{const to=$("to").value.trim();if(!to)return;st("Chiamo "+to+"…");bind(await device.connect({params:{To:to}}))};
+$("hang").onclick=()=>call&&call.disconnect();
+$("acc").onclick=()=>{if(!pending)return;pending.accept();bind(pending);pending=null;$("inc").style.display="none"};
+$("rej").onclick=()=>{if(!pending)return;pending.reject();pending=null;$("inc").style.display="none"};
+
+async function loadUsers(){
+  try{const r=await fetch("/users?secret="+encodeURIComponent(secret));const list=await r.json();
+    const box=$("users");box.innerHTML="";
+    list.filter(u=>u.identity!==me).forEach(u=>{const b=document.createElement("button");b.textContent=u.identity+" · "+u.lang;b.onclick=()=>$("to").value=u.identity;box.appendChild(b)});
+    if(!box.children.length)box.innerHTML='<small style="color:var(--mut)">Nessun altro utente online</small>';
+  }catch(e){}
+}
+function listen(){
+  const es=new EventSource("/events?identity="+encodeURIComponent(me)+"&secret="+encodeURIComponent(secret));
+  es.onmessage=e=>{const d=JSON.parse(e.data),mine=d.from===me;const el=document.createElement("div");el.className="l"+(mine?" me":"");
+    el.textContent=mine?d.original:d.translated;const s=document.createElement("small");
+    s.textContent=(mine?"Tradotto: "+d.translated:"Originale ("+d.from+"): "+d.original)+" · "+d.ms+" ms";el.appendChild(s);
+    $("subs").appendChild(el);$("subs").scrollTop=1e9;};
+}
+</script>
+</body>
+</html>
