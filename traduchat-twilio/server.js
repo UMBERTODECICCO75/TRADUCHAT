@@ -102,7 +102,7 @@ function emit(identity, data) {
 // TwiML che collega un lato della chiamata a ConversationRelay
 function relayTwiml(sessionId, role, lang, greeting) {
   return `<?xml version="1.0" encoding="UTF-8"?><Response><Connect>` +
-    `<ConversationRelay url="wss://${esc(PUBLIC_HOST)}/relay" language="${esc(lang)}" welcomeGreeting="${esc(greeting)}">` +
+    `<ConversationRelay url="wss://${esc(PUBLIC_HOST)}/relay" language="${esc(lang)}" welcomeGreeting="${esc(greeting)}" applicationReconnect="true">` +
     `<Parameter name="session" value="${esc(sessionId)}"/><Parameter name="role" value="${role}"/>` +
     `</ConversationRelay></Connect></Response>`;
 }
@@ -136,18 +136,51 @@ app.post('/voice', twilioCheck, async (req, res) => {
     to: `client:${to}`,
     from: TWILIO_CALLER_ID || `client:${from}`,
     twiml: relayTwiml(sessionId, 'b', target.lang, LANGS[target.lang].incoming),
-    timeout: 30
+    timeout: 30,
+    statusCallback: `https://${PUBLIC_HOST}/status?session=${encodeURIComponent(sessionId)}`,
+    statusCallbackEvent: ['completed'],
+    statusCallbackMethod: 'POST'
   }).then(c => { s.b.callSid = c.sid; })
     .catch(err => { console.error('Errore chiamata verso B:', err.message); hangup(s.a.callSid); });
 
   res.send(relayTwiml(sessionId, 'a', fromLang, LANGS[fromLang].calling));
 });
 
+// Esito della chiamata verso B: se non risponde, A lo sente nella sua lingua e la chiamata si chiude
+const NO_ANSWER = {
+  'it-IT': 'La persona non risponde. Riprova più tardi.', 'en-US': 'No answer. Please try again later.',
+  'es-ES': 'No contesta. Inténtalo más tarde.', 'fr-FR': 'Pas de réponse. Réessayez plus tard.',
+  'de-DE': 'Keine Antwort. Bitte später erneut versuchen.', 'pt-BR': 'Sem resposta. Tente mais tarde.'
+};
+app.post('/status', twilioCheck, (req, res) => {
+  res.sendStatus(204);
+  const s = sessions.get(String(req.query.session || ''));
+  if (!s) return;
+  const status = String(req.body.CallStatus || '');
+  const duration = Number(req.body.CallDuration || 0);
+  console.log(`Chiamata ${s.a.identity} -> ${s.b.identity}: ${status}, ${duration}s`);
+  if (['no-answer', 'busy', 'failed', 'canceled'].includes(status) && !s.b.ws) {
+    speak(s.a, NO_ANSWER[s.a.lang] || NO_ANSWER['it-IT']);
+    setTimeout(() => endSide(s.a), 4000);
+  }
+});
+
 app.get('/health', (req, res) => res.json({ ok: true, users: users.size, sessions: sessions.size }));
 
 // 3) WebSocket ConversationRelay: riceve il parlato trascritto e rimanda la traduzione all'altro lato
 const server = http.createServer(app);
-const wss = new WebSocketServer({ server, path: '/relay' });
+// Twilio firma l'apertura del WebSocket (X-Twilio-Signature): si accettano solo connessioni autentiche
+const wss = new WebSocketServer({
+  server,
+  path: '/relay',
+  verifyClient: ({ req }) => {
+    if (VALIDATE_TWILIO === 'false' || !TWILIO_AUTH_TOKEN) return true;
+    const signature = req.headers['x-twilio-signature'];
+    if (typeof signature !== 'string') return false;
+    return [`wss://${PUBLIC_HOST}${req.url}`, `https://${PUBLIC_HOST}${req.url}`]
+      .some(url => twilio.validateRequest(TWILIO_AUTH_TOKEN, signature, url, {}));
+  }
+});
 
 wss.on('connection', ws => {
   let s = null, role = null;
@@ -160,8 +193,11 @@ wss.on('connection', ws => {
       s = sessions.get(p.session);
       role = p.role;
       if (!s || !['a', 'b'].includes(role)) return ws.close();
+      clearTimeout(s[role].dropTimer);
       s[role].ws = ws;
+      s[role].closed = false;
       s[role].callSid = m.callSid || s[role].callSid;
+      if (m.connectionType === 'reconnect') console.log(`Riconnesso ${role} (${s[role].identity}), tentativo ${m.reconnectAttempt}`);
       for (const msg of s[role].queue.splice(0)) ws.send(msg);
       return;
     }
@@ -183,13 +219,18 @@ wss.on('connection', ws => {
     if (m.type === 'error') console.error('ConversationRelay:', m.description || m);
   });
 
-  ws.on('close', () => {
-    if (!s || !role) return;
+  ws.on('close', code => {
+    if (!s || !role || s[role].ws !== ws) return;
     s[role].ws = null;
-    s[role].closed = true;
-    const other = s[role === 'a' ? 'b' : 'a'];
-    if (!other.closed) hangup(other.callSid);
-    if (s.a.closed && s.b.closed) for (const [id, v] of sessions) if (v === s) sessions.delete(id);
+    const finish = () => {
+      s[role].closed = true;
+      const other = s[role === 'a' ? 'b' : 'a'];
+      if (!other.closed) endSide(other);
+      if (s.a.closed && s.b.closed) for (const [id, v] of sessions) if (v === s) sessions.delete(id);
+    };
+    // Twilio si ricollega da solo dopo una caduta di rete (codici 1001/1006/1011/1012/1013): aspetta prima di chiudere l'altro lato
+    if ([1001, 1006, 1011, 1012, 1013].includes(code)) s[role].dropTimer = setTimeout(finish, 12000);
+    else finish();
   });
 });
 
@@ -197,6 +238,14 @@ function speak(p, text) {
   const msg = JSON.stringify({ type: 'text', token: text, last: true });
   if (p.ws && p.ws.readyState === 1) p.ws.send(msg);
   else p.queue.push(msg); // B non ha ancora risposto: la frase parte appena risponde
+}
+
+// Chiude un lato: con il messaggio "end" se il WebSocket è aperto, altrimenti via API
+function endSide(p) {
+  if (p.ws && p.ws.readyState === 1) {
+    try { p.ws.send(JSON.stringify({ type: 'end', handoffData: JSON.stringify({ reason: 'altro partecipante uscito' }) })); return; } catch { /* poi via API */ }
+  }
+  hangup(p.callSid);
 }
 
 function hangup(callSid) {

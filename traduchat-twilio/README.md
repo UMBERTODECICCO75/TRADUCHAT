@@ -95,6 +95,14 @@ Controllo: `https://call.workoftraduchat.it/health` deve rispondere `{"ok":true,
 - **Crediti**: Twilio e DeepL si pagano a consumo oltre le soglie gratuite. Scala i minuti dal saldo dell'utente (Paddle) a fine chiamata, usando la durata dalla callback di stato Twilio.
 - **Privacy GDPR**: il parlato passa da Twilio (trascrizione/sintesi) e da DeepL (traduzione). Aggiungili come responsabili del trattamento nell'informativa.
 
+## Sicurezza e affidabilità lato Twilio
+
+- **Firma Twilio**: `/voice`, `/status` e il WebSocket `/relay` accettano solo richieste firmate da Twilio (`X-Twilio-Signature`, verificata con `TWILIO_AUTH_TOKEN`). Lascia `VALIDATE_TWILIO=true` in produzione.
+- **Riconnessione**: ConversationRelay usa `applicationReconnect="true"`. Se la connessione cade (riavvio del server, rete), Twilio si ricollega da solo e la chiamata continua; l'altro lato viene chiuso solo se il collegamento non torna entro 12 secondi.
+- **Non risponde / occupato**: se il chiamato non risponde, rifiuta o è occupato, chi chiama lo sente nella propria lingua e la chiamata si chiude.
+- **Fine chiamata**: quando uno dei due riaggancia, l'altro lato viene chiuso con il messaggio `end` di ConversationRelay.
+- **Log**: `pm2 logs traduchat-call` mostra esito e durata di ogni chiamata (utile per scalare i crediti).
+
 ## Lingue già configurate
 
 Italiano, Inglese, Spagnolo, Francese, Tedesco, Portoghese (BR). Per aggiungerne una, inserisci una riga nell'oggetto `LANGS` in `server.js` e nelle `<select>` delle pagine.
