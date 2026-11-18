@@ -43,6 +43,11 @@ const VOICE_LANG: Record<string, string> = {
   "Cantonese (Hong Kong)": "zh-HK",
 };
 
+/** BCP-47 tag used by the browser voice and speech recognition for a TraduChat language name. */
+export function voiceLang(language: string) {
+  return VOICE_LANG[language] ?? "it-IT";
+}
+
 /** Reads a text out loud in the given language, using the phone's own voice. */
 export function speak(text: string, language: string) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return false;

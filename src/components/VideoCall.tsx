@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import type Peer from "simple-peer";
-import { Camera, CameraOff, Loader2, Maximize, Minimize, Phone, PhoneOff, Video, VideoOff, Volume2, VolumeX } from "lucide-react";
+import { Camera, CameraOff, Captions, CaptionsOff, Languages, Loader2, Maximize, Minimize, Phone, PhoneOff, Video, VideoOff, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ContactMicButton } from "@/components/ContactMicButton";
 import { supabase } from "@/integrations/supabase/client";
 import { getVideoIceServers, updateVideoCall } from "@/lib/video-calls.functions";
 import { useRoomTopOffset } from "@/lib/useRoomTopOffset";
+import { useCallCaptions } from "@/lib/useCallCaptions";
 import { nextCallFullMode, ownsCallDevice, playCallMuteBeep, setCallPlaybackMuted, stopCallMedia, type CallFullMode, type VideoCall as Call, type CallUpdate } from "@/lib/video-calls";
 
 type Props = { roomId: string; roomCode: string; langA: string; langB: string; me: string; participants: { userId: string; name: string }[] };
@@ -47,6 +48,14 @@ export function VideoCall({ roomId, roomCode, langA, langB, me, participants }: 
   const signalChain = useRef(Promise.resolve());
   const others = participants.filter((person) => person.userId !== me);
   const selected = others.some((person) => person.userId === target) ? target : others[0]?.userId ?? "";
+  const captions = useCallCaptions({
+    active: Boolean(call && call.status === "active" && ownsCallDevice(call, me, device.current) && connection === "In chiamata"),
+    peer,
+    from: langA,
+    to: langB,
+  });
+  const receiveCaption = useRef(captions.receive);
+  receiveCaption.current = captions.receive;
 
   useRoomTopOffset();
 
@@ -212,6 +221,7 @@ export function VideoCall({ roomId, roomCode, langA, langB, me, participants }: 
           }).catch((reason) => { if (peer.current === instance) { setError(reason instanceof Error ? reason.message : "Collegamento interrotto."); void end(); } });
         });
         instance.on("connect", () => { setConnection("In chiamata"); setError(""); });
+        instance.on("data", (data: unknown) => receiveCaption.current(data));
         instance.on("stream", (media: MediaStream) => {
           remoteStream.current = media;
           const video = remoteVideo.current;
@@ -330,11 +340,21 @@ export function VideoCall({ roomId, roomCode, langA, langB, me, participants }: 
   const callControls = <>
     <Button variant="outline" size="icon" aria-label={cameraOn ? "Disattiva fotocamera" : "Attiva fotocamera"} title={cameraOn ? "Disattiva fotocamera" : "Attiva fotocamera"} onClick={toggleCamera}>{cameraOn ? <Camera className="size-4" /> : <CameraOff className="size-4" />}</Button>
     <Button variant={callAudioMuted ? "secondary" : "outline"} size="icon" aria-pressed={callAudioMuted} aria-label={callAudioMuted ? "Riattiva audio della chiamata" : "Silenzia audio della chiamata"} title={callAudioMuted ? "Riattiva audio della chiamata" : "Silenzia la chiamata per ascoltare i messaggi vocali"} onClick={toggleCallAudio}>{callAudioMuted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}</Button>
+    {captions.supported && <Button variant={captions.enabled ? "secondary" : "outline"} size="icon" aria-pressed={captions.enabled} aria-label={captions.enabled ? "Disattiva i sottotitoli tradotti" : "Attiva i sottotitoli tradotti"} title={captions.enabled ? "Disattiva i sottotitoli tradotti" : "Sottotitoli tradotti: l’altra persona legge nella sua lingua ciò che dici"} onClick={captions.toggle}>{captions.enabled ? <Captions className="size-4" /> : <CaptionsOff className="size-4" />}</Button>}
+    <Button variant={captions.readAloud ? "secondary" : "outline"} size="icon" aria-pressed={captions.readAloud} aria-label={captions.readAloud ? "Non leggere ad alta voce le traduzioni" : "Leggi ad alta voce le traduzioni ricevute"} title={captions.readAloud ? "Voce tradotta attiva" : "Voce tradotta: ascolta le frasi dell’altra persona nella tua lingua"} onClick={captions.toggleReadAloud}><Languages className="size-4" /></Button>
     <ContactMicButton name={remoteName} roomCode={roomCode} langA={langA} langB={langB} direct className="shrink-0" />
     <Button variant="outline" size="icon" aria-label={fullMode ? "Riduci la videochiamata" : "Schermo intero"} title={fullMode ? "Riduci la videochiamata" : "Schermo intero"} onClick={() => void toggleFull()}>{fullMode ? <Minimize className="size-4" /> : <Maximize className="size-4" />}</Button>
     {audioBlocked && !callAudioMuted && <Button variant="outline" size="sm" onClick={() => { void remoteVideo.current?.play().then(() => setAudioBlocked(false)).catch(() => setError("Tocca il video per consentire l’audio.")); }}><Volume2 className="size-4" />Attiva audio</Button>}
     <Button variant="destructive" size="default" className="w-full sm:w-auto" aria-label={call?.status === "ringing" ? "Annulla chiamata" : "Termina chiamata"} title="Interrompi la videochiamata" onClick={() => void end()}><PhoneOff className="size-5" />{call?.status === "ringing" ? "Annulla chiamata" : "Termina chiamata"}</Button>
   </>;
+
+  const captionLines = (captions.lines.length > 0 || captions.problem) && <div aria-live="polite" className={fullMode ? "absolute bottom-40 left-1/2 flex w-[min(92%,34rem)] -translate-x-1/2 flex-col gap-1" : "mt-2 flex flex-col gap-1"}>
+    {captions.lines.map((line) => <p key={line.id} translate="no" className={`rounded-lg px-3 py-1.5 text-sm ${fullMode ? "bg-demo-caption/90 text-demo-foreground" : line.mine ? "bg-primary/10" : "bg-muted"}`}>
+      <span className="font-medium">{line.mine ? "Tu" : remoteName}: </span>{line.text}
+      {line.other && line.other !== line.text && <span className="block text-xs opacity-70">{line.mine ? "Tradotto" : "Originale"}: {line.other}</span>}
+    </p>)}
+    {captions.problem && <p role="status" className="text-xs text-destructive">{captions.problem}</p>}
+  </div>;
 
   return <section id="videochiamata" ref={section} aria-label="Videochiamata reale" className="my-2 shrink-0 scroll-mt-16 border-y border-border py-2">
     {error && <p role="alert" className="mb-2 text-sm text-destructive">{error}</p>}
@@ -374,6 +394,7 @@ export function VideoCall({ roomId, roomCode, langA, langB, me, participants }: 
             <video ref={localVideo} aria-label="Il tuo video" autoPlay muted playsInline className="h-full w-full object-cover" />
             <span className="absolute bottom-0.5 left-1 rounded bg-demo-caption/90 px-1 py-0.5 text-[10px] leading-none text-demo-foreground">Tu</span>
           </div>
+          {captionLines}
           <div className="absolute bottom-4 left-1/2 flex w-[min(92%,30rem)] -translate-x-1/2 flex-wrap justify-center gap-2">{callControls}</div>
         </> : <>
           <div className="relative aspect-video overflow-hidden rounded-lg bg-demo-stage">
@@ -386,6 +407,7 @@ export function VideoCall({ roomId, roomCode, langA, langB, me, participants }: 
           </div>
         </>}
       </div>
+      {!fullMode && captionLines}
       {!fullMode && <div className="mt-2 flex flex-wrap justify-center gap-2">{callControls}</div>}
     </>}
   </section>;
